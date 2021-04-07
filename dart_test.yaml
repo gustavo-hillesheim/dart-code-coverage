@@ -1,0 +1,3 @@
+paths:
+    - test/code_coverage_test.dart
+    - test/a_test.dart

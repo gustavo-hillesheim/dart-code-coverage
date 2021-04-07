@@ -1,0 +1,1 @@
+A command-line application and package for Code Coverage Reporting of a Dart application.
