@@ -6,17 +6,19 @@ import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
 void main(List<String> arguments) async {
-  final pubspecFile =
-      File(path.join(Directory.current.absolute.path, 'pubspec.yaml'));
-  final pubspecContent = loadYaml(pubspecFile.readAsStringSync());
-  final packageName = pubspecContent['name'];
+  final workingDir = Directory.current;
+  final packageName = getPackageName(directory: workingDir);
 
-  final hitmapReader = HitmapReader();
-  final coverageReportFactory = CoverageReportFactory();
-  final coverageReport = await CodeCoverageRunner(
-    hitmapReader: hitmapReader,
-    coverageReportFactory: coverageReportFactory,
-  ).run(packages: [packageName]);
+  final coverageReport = await CodeCoverageRunner.newDefault().run(
+    packages: [packageName],
+    packageDirectory: workingDir,
+  );
 
   print(TableFormatter().format(coverageReport));
+}
+
+String getPackageName({required Directory directory}) {
+  final pubspecFile = File(path.join(directory.absolute.path, 'pubspec.yaml'));
+  final pubspecContent = loadYaml(pubspecFile.readAsStringSync());
+  return pubspecContent['name'];
 }

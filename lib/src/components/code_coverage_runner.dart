@@ -12,29 +12,58 @@ class CodeCoverageRunner {
     required this.coverageReportFactory,
   });
 
-  Future<CoverageReport> run({List<String>? packages}) async {
-    final coverageOutputDirName = _generateCoverageOutputDirName();
-    await _runTestsWithCoverage(coverageOutputDirName: coverageOutputDirName);
-
-    final coverageOutputDir = Directory(
-      path.join(Directory.current.absolute.path, coverageOutputDirName),
+  factory CodeCoverageRunner.newDefault() {
+    return CodeCoverageRunner(
+      hitmapReader: HitmapReader(),
+      coverageReportFactory: CoverageReportFactory(),
     );
-    var hitmap = await hitmapReader.fromDirectory(coverageOutputDir);
-    hitmap = _filterHitMap(hitmap, packages: packages);
-    if (packages?.length == 1) {
-      hitmap = _removePackagePrefix(hitmap, packageName: packages!.first);
-    }
+  }
 
-    await coverageOutputDir.delete(recursive: true);
+  Future<CoverageReport> run(
+      {List<String>? packages, required Directory packageDirectory}) async {
+    final coverageOutputDir = _getCoverageOutputDir(packageDirectory);
+    final coverageOutputDirName =
+        coverageOutputDir.path.split(path.separator).last;
+
+    await Process.run(
+      'dart',
+      ['test', '--coverage=$coverageOutputDirName'],
+      workingDirectory: packageDirectory.absolute.path,
+    );
+
+    var hitmap = _simplifyHitmap(
+      await hitmapReader.fromDirectory(coverageOutputDir),
+      packages: packages,
+    );
+
+    if (coverageOutputDir.existsSync()) {
+      await coverageOutputDir.delete(recursive: true);
+    }
     return coverageReportFactory.fromHitmap(hitmap);
   }
 
-  Map<String, Map<int, int>> _filterHitMap(
+  Directory _getCoverageOutputDir(Directory directory) {
+    final coverageOutputDirName = _generateCoverageOutputDirName();
+    return Directory(
+      path.join(directory.absolute.path, coverageOutputDirName),
+    );
+  }
+
+  String _generateCoverageOutputDirName() {
+    final currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
+    return 'code_coverage_$currentTimeMillis';
+  }
+
+  Map<String, Map<int, int>> _simplifyHitmap(
     Map<String, Map<int, int>> hitmap, {
     List<String>? packages,
   }) {
     hitmap.removeWhere(
-        (fileName, hits) => !_fileBelongsInAnyPackage(fileName, packages));
+      (fileName, hits) => !_fileBelongsInAnyPackage(fileName, packages),
+    );
+    if (packages?.length == 1) {
+      hitmap = _removePackagePrefix(hitmap, packageName: packages!.first);
+    }
     return hitmap;
   }
 
@@ -52,15 +81,5 @@ class CodeCoverageRunner {
       (fileName, hits) =>
           MapEntry(fileName.replaceFirst('package:$packageName/', ''), hits),
     );
-  }
-
-  String _generateCoverageOutputDirName() {
-    final currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
-    return 'code_coverage_$currentTimeMillis';
-  }
-
-  Future<void> _runTestsWithCoverage(
-      {required String coverageOutputDirName}) async {
-    await Process.run('dart', ['test', '--coverage=$coverageOutputDirName']);
   }
 }
