@@ -25,6 +25,7 @@ class CodeCoverageRunner {
     final coverageOutputDirName =
         coverageOutputDir.path.split(path.separator).last;
 
+    print('Running package tests...');
     await Process.run(
       'dart',
       ['test', '--coverage=$coverageOutputDirName'],
