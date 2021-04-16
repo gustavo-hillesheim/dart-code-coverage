@@ -71,8 +71,9 @@ class CodeCoverageRunner {
       workingDirectory: packageDirectory.absolute.path,
     );
     if (showOutput) {
+      final errorPen = AnsiPen()..red();
       listenLines(process.stdout, printer: print);
-      listenLines(process.stderr, printer: AnsiPen()..red());
+      listenLines(process.stderr, printer: (line) => print(errorPen(line)));
     }
     await process.exitCode;
   }
