@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:ansicolor/ansicolor.dart';
 import 'package:code_coverage/code_coverage.dart';
 import 'package:path/path.dart' as path;
 
@@ -19,17 +21,19 @@ class CodeCoverageRunner {
     );
   }
 
-  Future<CoverageReport> run(
-      {List<String>? packages, required Directory packageDirectory}) async {
+  Future<CoverageReport> run({
+    List<String>? packages,
+    required Directory packageDirectory,
+    required bool showOutput,
+  }) async {
     final coverageOutputDir = _getCoverageOutputDir(packageDirectory);
     final coverageOutputDirName =
         coverageOutputDir.path.split(path.separator).last;
 
-    print('Running package tests...');
-    await Process.run(
-      'dart',
-      ['test', '--coverage=$coverageOutputDirName'],
-      workingDirectory: packageDirectory.absolute.path,
+    await _runTests(
+      packageDirectory: packageDirectory,
+      coverageOutputDirName: coverageOutputDirName,
+      showOutput: showOutput,
     );
 
     var hitmap = _simplifyHitmap(
@@ -53,6 +57,32 @@ class CodeCoverageRunner {
   String _generateCoverageOutputDirName() {
     final currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
     return 'code_coverage_$currentTimeMillis';
+  }
+
+  Future<void> _runTests({
+    required Directory packageDirectory,
+    required String coverageOutputDirName,
+    bool showOutput = false,
+  }) async {
+    print('Running package tests...');
+    final process = await Process.start(
+      'dart',
+      ['test', '--coverage=$coverageOutputDirName'],
+      workingDirectory: packageDirectory.absolute.path,
+    );
+    if (showOutput) {
+      listenLines(process.stdout, printer: print);
+      listenLines(process.stderr, printer: AnsiPen()..red());
+    }
+    await process.exitCode;
+  }
+
+  void listenLines(Stream<List<int>> messageStream,
+      {required void Function(String) printer}) {
+    messageStream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen(printer);
   }
 
   Map<String, Map<int, int>> _simplifyHitmap(

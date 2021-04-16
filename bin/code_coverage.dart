@@ -13,6 +13,11 @@ void main(List<String> arguments) async {
   final argsParser = ArgParser();
   argsParser.addOption('packageDir',
       abbr: 'd', help: 'Directory containing the package to be tested');
+  argsParser.addFlag('showOutput',
+      abbr: 'o',
+      help: 'Show tests output',
+      negatable: false,
+      defaultsTo: false);
   argsParser.addFlag('help',
       abbr: 'h', help: 'Show application help', negatable: false);
 
@@ -26,6 +31,7 @@ void main(List<String> arguments) async {
   final dir = argsResult.wasParsed('packageDir')
       ? Directory(argsResult['packageDir'])
       : Directory.current;
+  final showOutput = argsResult['showOutput'];
 
   final dirIsValid = validateDir(dir);
   if (!dirIsValid) {
@@ -41,6 +47,7 @@ void main(List<String> arguments) async {
   final coverageReport = await CodeCoverageRunner.newDefault().run(
     packages: [packageName],
     packageDirectory: dir,
+    showOutput: showOutput,
   );
 
   print(TableFormatter().format(coverageReport));
