@@ -24,7 +24,7 @@ class TableFormatter {
         tableBuilder,
         fileName: fileReport.fileName,
         coveragePercent: fileReport.calculateLineCoveragePercent(),
-        uncoveredLines: summarizeLines(fileReport.getUncoveredLines()),
+        uncoveredLines: summarizeLines(fileReport.getUncoveredLines()) + ' ',
         colored: colored,
       );
     });

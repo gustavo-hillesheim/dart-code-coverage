@@ -6,10 +6,7 @@ String summarizeLines(List<int> lines) {
     final currentLine = lines[i];
     final nextLine = lines.length > i + 1 ? lines[i + 1] : null;
     if (isSequence && (nextLine == null || currentLine != nextLine - 1)) {
-      if (result.isNotEmpty) {
-        result += ', ';
-      }
-      result += '$sequenceStart-$currentLine';
+      result = concatenate(result, '$sequenceStart-$currentLine');
       isSequence = false;
       sequenceStart = null;
     } else if (!isSequence) {
@@ -17,15 +14,16 @@ String summarizeLines(List<int> lines) {
         isSequence = true;
         sequenceStart = currentLine;
       } else {
-        if (result.isNotEmpty) {
-          result += ', ';
-        }
-        result += '$currentLine';
+        result = concatenate(result, '$currentLine');
       }
     }
   }
-  if (isSequence) {
-    result += '$sequenceStart-${lines.last}';
-  }
   return result;
+}
+
+String concatenate(String initial, String toAdd) {
+  if (initial.isNotEmpty) {
+    return '$initial, $toAdd';
+  }
+  return toAdd;
 }

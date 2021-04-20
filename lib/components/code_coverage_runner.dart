@@ -67,16 +67,20 @@ class CodeCoverageRunner {
     bool showOutput = false,
   }) async {
     print('Running package tests...');
+
     final process = await Process.start(
       'dart',
       ['test', '--coverage=$coverageOutputDirName'],
       workingDirectory: packageDirectory.absolute.path,
     );
-    if (showOutput) {
-      final errorPen = AnsiPen()..red();
-      listenLines(process.stdout, printer: print);
-      listenLines(process.stderr, printer: (line) => print(errorPen(line)));
-    }
+
+    final errorPen = AnsiPen()..red();
+    final nullPrinter = (_) {};
+    final errorPrinter = (line) => print(errorPen(line));
+    listenLines(process.stdout, printer: showOutput ? print : nullPrinter);
+    listenLines(process.stderr,
+        printer: showOutput ? errorPrinter : nullPrinter);
+
     await process.exitCode;
   }
 
