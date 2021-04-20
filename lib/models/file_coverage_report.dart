@@ -17,5 +17,12 @@ class FileCoverageReport {
         .length;
   }
 
+  List<int> getUncoveredLines() {
+    return linesCoverage.entries
+        .where((entry) => entry.value == 0)
+        .map((entry) => entry.key)
+        .toList();
+  }
+
   int get totalLines => linesCoverage.length;
 }

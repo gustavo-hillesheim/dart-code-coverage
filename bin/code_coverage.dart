@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:code_coverage/code_coverage.dart';
-import 'package:code_coverage/src/components/code_coverage_runner.dart';
+import 'package:code_coverage/components/code_coverage_runner.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 

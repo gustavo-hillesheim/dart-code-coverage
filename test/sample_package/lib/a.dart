@@ -16,3 +16,8 @@ int max(int a, int b) {
 int min(int a, int b) {
   return a < b ? a : b;
 }
+
+int abs(double a) {
+  final absolute = a.toInt();
+  return absolute;
+}

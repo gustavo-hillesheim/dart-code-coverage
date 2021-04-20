@@ -1,6 +1,7 @@
-import 'package:code_coverage/code_coverage.dart';
-import 'package:code_coverage/src/components/table_builder.dart';
+import 'package:code_coverage/components/table_builder.dart';
+import 'package:code_coverage/models/coverage_report.dart';
 import 'package:ansicolor/ansicolor.dart';
+import 'package:code_coverage/utils.dart';
 
 class TableFormatter {
   String format(
@@ -8,11 +9,13 @@ class TableFormatter {
     bool colored = true,
     bool compact = true,
   }) {
-    final tableBuilder = TableBuilder().setHeaders(['File', 'Coverage %']);
+    final tableBuilder =
+        TableBuilder().setHeaders(['File', 'Coverage %', 'Uncovered Lines']);
     _addRow(
       tableBuilder,
       fileName: 'All files',
       coveragePercent: report.calculateLineCoveragePercent(),
+      uncoveredLines: '',
       colored: colored,
     );
 
@@ -21,6 +24,7 @@ class TableFormatter {
         tableBuilder,
         fileName: fileReport.fileName,
         coveragePercent: fileReport.calculateLineCoveragePercent(),
+        uncoveredLines: summarizeLines(fileReport.getUncoveredLines()),
         colored: colored,
       );
     });
@@ -32,6 +36,7 @@ class TableFormatter {
     TableBuilder tableBuilder, {
     required String fileName,
     required double coveragePercent,
+    required String uncoveredLines,
     required bool colored,
   }) {
     final pen =
@@ -39,6 +44,7 @@ class TableFormatter {
     tableBuilder.addRow([
       fileName,
       (coveragePercent * 100).toStringAsFixed(2),
+      uncoveredLines,
     ], pen: pen);
   }
 

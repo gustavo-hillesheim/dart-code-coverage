@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
-import 'package:code_coverage/code_coverage.dart';
+import 'package:code_coverage/components/coverage_report_factory.dart';
+import 'package:code_coverage/components/hitmap_reader.dart';
+import 'package:code_coverage/models/coverage_report.dart';
 import 'package:path/path.dart' as path;
 
 class CodeCoverageRunner {
