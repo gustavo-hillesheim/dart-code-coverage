@@ -1,43 +1,36 @@
 import 'dart:io';
 
-import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:code_coverage/code_coverage.dart';
 import 'package:code_coverage/components/code_coverage_runner.dart';
+import 'package:code_coverage/constants.dart';
 import 'package:code_coverage/utils.dart';
 import 'package:path/path.dart' as path;
-import 'package:yaml/yaml.dart';
 
 void main(List<String> arguments) async {
-  final errorPen = AnsiPen()..red();
-
   final argsParser = defineArgsParser();
   final args = extractArgs(argsParser, arguments);
   final error = validateArgs(args);
   if (error != null) {
-    print(errorPen(error));
+    print(kRedPen(error));
     return;
   }
 
-  final packageName = getPackageName(directory: args.packageDirectory);
-  if (packageName == null || packageName.isEmpty) {
-    print(errorPen('Could not find package name in pubspec.yaml'));
-    return;
-  }
-
-  final coverageReport = await CodeCoverageRunner.newDefault().run(
-    package: packageName,
+  final coverageReport = await CodeCoverageExtractor.createDefault().extract(
     packageDirectory: args.packageDirectory,
-    showOutput: args.showOutput,
+    showTestOutput: args.showOutput,
   );
 
+  printCoverageReport(coverageReport);
+}
+
+void printCoverageReport(CoverageReport coverageReport) {
   print(TableFormatter().format(coverageReport));
 
   final fileCoveragePercent = coverageReport.calculateFileCoveragePercent();
   final totalCoveredFiles = coverageReport.coveredFiles.length;
   final totalFiles = coverageReport.packageFiles.length;
-  final fileCoveragePen =
-      createCoveragePen(coveragePercent: fileCoveragePercent);
+  final fileCoveragePen = coveragePen(fileCoveragePercent);
   print(fileCoveragePen(
     '${(fileCoveragePercent * 100).toStringAsFixed(2)}% ($totalCoveredFiles/$totalFiles) of all files were covered',
   ));
@@ -90,12 +83,6 @@ String? validateArgs(ApplicationArgs args) {
     return 'Directory \"$packageDirectoryPath\" does not contain a pubspec.yaml file';
   }
   return null;
-}
-
-String? getPackageName({required Directory directory}) {
-  final pubspecFile = File(path.join(directory.absolute.path, 'pubspec.yaml'));
-  final pubspecContent = loadYaml(pubspecFile.readAsStringSync());
-  return pubspecContent['name'];
 }
 
 class ApplicationArgs {

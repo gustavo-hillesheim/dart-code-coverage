@@ -1,48 +1,57 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:ansicolor/ansicolor.dart';
 import 'package:code_coverage/components/coverage_report_factory.dart';
 import 'package:code_coverage/components/hitmap_reader.dart';
+import 'package:code_coverage/components/process_runner.dart';
 import 'package:code_coverage/models/coverage_report.dart';
+import 'package:code_coverage/utils.dart';
 import 'package:path/path.dart' as path;
 
-class CodeCoverageRunner {
+class CodeCoverageExtractor {
   final HitmapReader hitmapReader;
   final CoverageReportFactory coverageReportFactory;
+  final ProcessRunner processRunner;
 
-  CodeCoverageRunner({
+  CodeCoverageExtractor({
     required this.hitmapReader,
     required this.coverageReportFactory,
+    required this.processRunner,
   });
 
-  factory CodeCoverageRunner.newDefault() {
-    return CodeCoverageRunner(
+  factory CodeCoverageExtractor.createDefault() {
+    return CodeCoverageExtractor(
       hitmapReader: HitmapReader(),
       coverageReportFactory: CoverageReportFactory(),
+      processRunner: ProcessRunner(),
     );
   }
 
-  Future<CoverageReport> run({
-    required String package,
+  Future<CoverageReport> extract({
     required Directory packageDirectory,
-    required bool showOutput,
+    required bool showTestOutput,
   }) async {
-    final coverageOutputDir = _getCoverageOutputDir(packageDirectory);
+    final coverageOutputDirectory = _getCoverageOutputDir(packageDirectory);
+    final package = getPackageName(directory: packageDirectory);
+    if (package == null) {
+      throw Exception(
+          'Could not find package name in pubspec.yaml; Working directory: ${packageDirectory.absolute.path}');
+    }
 
-    await _runTests(
-      packageDirectory: packageDirectory,
-      coverageOutputDirName: coverageOutputDir.path.split(path.separator).last,
-      showOutput: showOutput,
+    print('Running package tests...');
+    await processRunner.run(
+      'dart',
+      ['test', '--coverage=${coverageOutputDirectory.absolute.path}'],
+      workingDirectory: packageDirectory,
+      showOutput: showTestOutput,
     );
 
-    var hitmap = _filterAndSimpliflyFileNames(
-      await hitmapReader.fromDirectory(coverageOutputDir),
+    final hitmap = _filterAndSimpliflyFileNames(
+      await hitmapReader.fromDirectory(coverageOutputDirectory),
       package: package,
     );
 
-    if (coverageOutputDir.existsSync()) {
-      await coverageOutputDir.delete(recursive: true);
+    if (coverageOutputDirectory.existsSync()) {
+      await coverageOutputDirectory.delete(recursive: true);
     }
 
     return coverageReportFactory.create(
@@ -62,37 +71,6 @@ class CodeCoverageRunner {
   String _generateCoverageOutputDirName() {
     final currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
     return 'code_coverage_$currentTimeMillis';
-  }
-
-  Future<void> _runTests({
-    required Directory packageDirectory,
-    required String coverageOutputDirName,
-    bool showOutput = false,
-  }) async {
-    print('Running package tests...');
-
-    final process = await Process.start(
-      'dart',
-      ['test', '--coverage=$coverageOutputDirName'],
-      workingDirectory: packageDirectory.absolute.path,
-    );
-
-    final errorPen = AnsiPen()..red();
-    final nullPrinter = (_) {};
-    final errorPrinter = (line) => print(errorPen(line));
-    listenLines(process.stdout, printer: showOutput ? print : nullPrinter);
-    listenLines(process.stderr,
-        printer: showOutput ? errorPrinter : nullPrinter);
-
-    await process.exitCode;
-  }
-
-  void listenLines(Stream<List<int>> messageStream,
-      {required void Function(String) printer}) {
-    messageStream
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen(printer);
   }
 
   Map<String, Map<int, int>> _filterAndSimpliflyFileNames(

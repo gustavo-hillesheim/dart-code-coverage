@@ -39,9 +39,7 @@ class TableFormatter {
     required String uncoveredLines,
     required bool colored,
   }) {
-    final pen = colored
-        ? createCoveragePen(coveragePercent: coveragePercent)
-        : AnsiPen();
+    final pen = colored ? coveragePen(coveragePercent) : AnsiPen();
     tableBuilder.addRow([
       fileName,
       (coveragePercent * 100).toStringAsFixed(2),

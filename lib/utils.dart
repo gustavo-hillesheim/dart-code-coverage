@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:ansicolor/ansicolor.dart';
+import 'package:code_coverage/constants.dart';
+import 'package:yaml/yaml.dart';
+import 'package:path/path.dart' as path;
 
 String summarizeLines(List<int> lines) {
   var result = '';
@@ -30,12 +35,18 @@ String concatenate(String initial, String toAdd) {
   return toAdd;
 }
 
-AnsiPen createCoveragePen({required double coveragePercent}) {
+AnsiPen coveragePen(double coveragePercent) {
   if (coveragePercent < .6) {
-    return AnsiPen()..red();
+    return kRedPen;
   } else if (coveragePercent < .8) {
-    return AnsiPen()..yellow();
+    return kYellowPen;
   } else {
-    return AnsiPen()..green();
+    return kGreenPen;
   }
+}
+
+String? getPackageName({required Directory directory}) {
+  final pubspecFile = File(path.join(directory.absolute.path, 'pubspec.yaml'));
+  final pubspecContent = loadYaml(pubspecFile.readAsStringSync());
+  return pubspecContent['name'];
 }
