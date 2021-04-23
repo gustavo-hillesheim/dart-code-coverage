@@ -1,11 +1,17 @@
 import 'package:code_coverage/models/file_coverage_report.dart';
 
 class CoverageReport {
-  final Map<String, FileCoverageReport> files;
+  final Map<String, FileCoverageReport> coveredFiles;
+  final List<String> packageFiles;
 
   CoverageReport({
-    required this.files,
+    required this.coveredFiles,
+    required this.packageFiles,
   });
+
+  double calculateFileCoveragePercent() {
+    return coveredFiles.length / packageFiles.length;
+  }
 
   double calculateLineCoveragePercent() {
     final lineCoveragePercent =
@@ -14,22 +20,22 @@ class CoverageReport {
   }
 
   int calculateTotalLinesCovered() {
-    if (files.isEmpty) {
+    if (coveredFiles.isEmpty) {
       return 0;
     }
 
-    return files.values
+    return coveredFiles.values
         .map((fileReportDetails) => fileReportDetails.calculateLinesCovered())
         .reduce((totalLinesCovered, fileLinesCovered) =>
             totalLinesCovered + fileLinesCovered);
   }
 
   int calculateTotalLines() {
-    if (files.isEmpty) {
+    if (coveredFiles.isEmpty) {
       return 0;
     }
 
-    return files.values
+    return coveredFiles.values
         .map((fileReportDetails) => fileReportDetails.totalLines)
         .reduce((totalLines, fileLines) => totalLines + fileLines);
   }

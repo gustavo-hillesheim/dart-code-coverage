@@ -24,29 +24,32 @@ class CodeCoverageRunner {
   }
 
   Future<CoverageReport> run({
-    List<String>? packages,
+    required String package,
     required Directory packageDirectory,
     required bool showOutput,
   }) async {
     final coverageOutputDir = _getCoverageOutputDir(packageDirectory);
-    final coverageOutputDirName =
-        coverageOutputDir.path.split(path.separator).last;
 
     await _runTests(
       packageDirectory: packageDirectory,
-      coverageOutputDirName: coverageOutputDirName,
+      coverageOutputDirName: coverageOutputDir.path.split(path.separator).last,
       showOutput: showOutput,
     );
 
-    var hitmap = _simplifyHitmap(
+    var hitmap = _filterAndSimpliflyFileNames(
       await hitmapReader.fromDirectory(coverageOutputDir),
-      packages: packages,
+      package: package,
     );
 
     if (coverageOutputDir.existsSync()) {
       await coverageOutputDir.delete(recursive: true);
     }
-    return coverageReportFactory.fromHitmap(hitmap);
+
+    return coverageReportFactory.create(
+      hitmap: hitmap,
+      package: package,
+      packageDirectory: packageDirectory,
+    );
   }
 
   Directory _getCoverageOutputDir(Directory directory) {
@@ -92,32 +95,16 @@ class CodeCoverageRunner {
         .listen(printer);
   }
 
-  Map<String, Map<int, int>> _simplifyHitmap(
+  Map<String, Map<int, int>> _filterAndSimpliflyFileNames(
     Map<String, Map<int, int>> hitmap, {
-    List<String>? packages,
+    required String package,
   }) {
     hitmap.removeWhere(
-      (fileName, hits) => !_fileBelongsInAnyPackage(fileName, packages),
+      (fileName, hits) => !fileName.startsWith('package:$package/'),
     );
-    if (packages?.length == 1) {
-      hitmap = _removePackagePrefix(hitmap, packageName: packages!.first);
-    }
-    return hitmap;
-  }
-
-  bool _fileBelongsInAnyPackage(String fileName, List<String>? packages) {
-    if (packages == null) {
-      return true;
-    }
-    return packages.any((package) => fileName.startsWith('package:$package/'));
-  }
-
-  Map<String, Map<int, int>> _removePackagePrefix(
-      Map<String, Map<int, int>> hitmap,
-      {required String packageName}) {
     return hitmap.map(
       (fileName, hits) =>
-          MapEntry(fileName.replaceFirst('package:$packageName/', ''), hits),
+          MapEntry(fileName.replaceFirst('package:$package/', ''), hits),
     );
   }
 }

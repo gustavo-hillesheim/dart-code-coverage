@@ -13,13 +13,13 @@ class TableFormatter {
         TableBuilder().setHeaders(['File', 'Coverage %', 'Uncovered Lines']);
     _addRow(
       tableBuilder,
-      fileName: 'All files',
+      fileName: 'All covered files',
       coveragePercent: report.calculateLineCoveragePercent(),
       uncoveredLines: '',
       colored: colored,
     );
 
-    report.files.values.forEach((fileReport) {
+    report.coveredFiles.values.forEach((fileReport) {
       _addRow(
         tableBuilder,
         fileName: fileReport.fileName,
@@ -39,22 +39,13 @@ class TableFormatter {
     required String uncoveredLines,
     required bool colored,
   }) {
-    final pen =
-        colored ? _createPen(coveragePercent: coveragePercent) : AnsiPen();
+    final pen = colored
+        ? createCoveragePen(coveragePercent: coveragePercent)
+        : AnsiPen();
     tableBuilder.addRow([
       fileName,
       (coveragePercent * 100).toStringAsFixed(2),
       uncoveredLines,
     ], pen: pen);
-  }
-
-  AnsiPen _createPen({required double coveragePercent}) {
-    if (coveragePercent < .6) {
-      return AnsiPen()..red();
-    } else if (coveragePercent < .8) {
-      return AnsiPen()..yellow();
-    } else {
-      return AnsiPen()..green();
-    }
   }
 }

@@ -1,13 +1,21 @@
+import 'dart:io';
+
+import 'package:path/path.dart' as path;
 import 'package:code_coverage/models/coverage_report.dart';
 import 'package:code_coverage/models/file_coverage_report.dart';
 
 class CoverageReportFactory {
-  CoverageReport fromHitmap(
-    Map<String, Map<int, int>> hitmap, {
-    List<String>? onlyPackages,
+  CoverageReport create({
+    required Map<String, Map<int, int>> hitmap,
+    required Directory packageDirectory,
+    required String package,
   }) {
     return CoverageReport(
-      files: _extractFilesReportDetails(hitmap),
+      coveredFiles: _extractFilesReportDetails(hitmap),
+      packageFiles: _findPackageFilesNames(
+        packageDirectory: packageDirectory,
+        package: package,
+      ),
     );
   }
 
@@ -23,5 +31,25 @@ class CoverageReportFactory {
     }
 
     return filesReportDetails;
+  }
+
+  List<String> _findPackageFilesNames({
+    required Directory packageDirectory,
+    required String package,
+  }) {
+    final srcDirPath = packageDirectory.absolute.path;
+    final srcDirPrefix = '$srcDirPath${path.separator}';
+    final libDirPrefix = 'lib${path.separator}';
+    return packageDirectory
+        .listSync(recursive: true)
+        .map((file) => file.absolute.path)
+        .map((filePath) => filePath.replaceFirst(srcDirPrefix, ''))
+        .where((filePath) => filePath.startsWith('lib'))
+        .where((filePath) => filePath.endsWith('.dart'))
+        .map((filePath) {
+      final relativeFilePath = filePath.replaceFirst(libDirPrefix, '');
+      final filePackagePath = 'package:$package/$relativeFilePath';
+      return filePackagePath;
+    }).toList();
   }
 }

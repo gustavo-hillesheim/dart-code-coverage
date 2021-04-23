@@ -4,6 +4,7 @@ import 'package:ansicolor/ansicolor.dart';
 import 'package:args/args.dart';
 import 'package:code_coverage/code_coverage.dart';
 import 'package:code_coverage/components/code_coverage_runner.dart';
+import 'package:code_coverage/utils.dart';
 import 'package:path/path.dart' as path;
 import 'package:yaml/yaml.dart';
 
@@ -25,12 +26,21 @@ void main(List<String> arguments) async {
   }
 
   final coverageReport = await CodeCoverageRunner.newDefault().run(
-    packages: [packageName],
+    package: packageName,
     packageDirectory: args.packageDirectory,
     showOutput: args.showOutput,
   );
 
   print(TableFormatter().format(coverageReport));
+
+  final fileCoveragePercent = coverageReport.calculateFileCoveragePercent();
+  final totalCoveredFiles = coverageReport.coveredFiles.length;
+  final totalFiles = coverageReport.packageFiles.length;
+  final fileCoveragePen =
+      createCoveragePen(coveragePercent: fileCoveragePercent);
+  print(fileCoveragePen(
+    '${(fileCoveragePercent * 100).toStringAsFixed(2)}% ($totalCoveredFiles/$totalFiles) of all files were covered',
+  ));
 }
 
 ArgParser defineArgsParser() {
