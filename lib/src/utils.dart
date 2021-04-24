@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:ansicolor/ansicolor.dart';
-import 'package:code_coverage/constants.dart';
+import 'package:code_coverage/src/constants.dart';
 import 'package:yaml/yaml.dart';
 import 'package:path/path.dart' as path;
 

@@ -1,4 +1,4 @@
-import 'package:code_coverage/utils.dart';
+import 'package:code_coverage/src/utils.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,3 +1,3 @@
-## 1.0.0
+## 1.0.0-SNAPSHOT
 
-- Initial version, created by Stagehand
+- Created initial version of CLI

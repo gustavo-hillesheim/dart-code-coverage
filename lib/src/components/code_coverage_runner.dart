@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:code_coverage/components/coverage_report_factory.dart';
-import 'package:code_coverage/components/hitmap_reader.dart';
-import 'package:code_coverage/components/process_runner.dart';
-import 'package:code_coverage/models/coverage_report.dart';
-import 'package:code_coverage/utils.dart';
+import 'package:code_coverage/src/components/coverage_report_factory.dart';
+import 'package:code_coverage/src/components/hitmap_reader.dart';
+import 'package:code_coverage/src/components/process_runner.dart';
+import 'package:code_coverage/src/models/coverage_report.dart';
+import 'package:code_coverage/src/utils.dart';
 import 'package:path/path.dart' as path;
 
 class CodeCoverageExtractor {

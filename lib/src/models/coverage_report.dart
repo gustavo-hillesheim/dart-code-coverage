@@ -1,4 +1,4 @@
-import 'package:code_coverage/models/file_coverage_report.dart';
+import 'package:code_coverage/src/models/file_coverage_report.dart';
 
 class CoverageReport {
   final Map<String, FileCoverageReport> coveredFiles;

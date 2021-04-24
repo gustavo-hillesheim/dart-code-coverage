@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:code_coverage/constants.dart';
+import 'package:code_coverage/src/constants.dart';
 
 class ProcessRunner {
   Future<int> run(

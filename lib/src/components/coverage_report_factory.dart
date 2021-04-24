@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:path/path.dart' as path;
-import 'package:code_coverage/models/coverage_report.dart';
-import 'package:code_coverage/models/file_coverage_report.dart';
+import 'package:code_coverage/src/models/coverage_report.dart';
+import 'package:code_coverage/src/models/file_coverage_report.dart';
 
 class CoverageReportFactory {
   CoverageReport create({
