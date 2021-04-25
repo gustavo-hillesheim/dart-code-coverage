@@ -1,4 +1,4 @@
-This is a test package used to show how the `code_coverage` works.<br>
+This is a test package used to show how the `code_coverage` command works.<br>
 On this directory, simply run `code_coverage` or `dart pub global run code_coverage` and you should see the following in your terminal:
 <pre>
 Running package tests...
