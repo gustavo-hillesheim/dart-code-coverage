@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:code_coverage/code_coverage.dart';
+import 'package:code_coverage/src/components/table_formatter.dart';
 import 'package:code_coverage/src/constants.dart';
 import 'package:code_coverage/src/utils.dart';
 import 'package:path/path.dart' as path;
