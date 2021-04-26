@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:code_coverage/src/constants.dart';
+import 'package:ansicolor/ansicolor.dart';
 
 class ProcessRunner {
   Future<int> run(
@@ -17,7 +17,8 @@ class ProcessRunner {
     );
 
     final nullPrinter = (_) {};
-    final errorPrinter = (line) => print(kRedPen(line));
+    final errorPen = AnsiPen()..red();
+    final errorPrinter = (line) => print(errorPen(line));
     printOutput(process.stdout, printer: showOutput ? print : nullPrinter);
     printOutput(process.stderr,
         printer: showOutput ? errorPrinter : nullPrinter);

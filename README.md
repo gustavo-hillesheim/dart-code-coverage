@@ -57,4 +57,4 @@ Here are the classes that you are likely to use:
 - **CoverageReport**: This class contains the covered files reports, names of uncovered files, and also some useful methods for coverage reporting;
 - **FileCoverageReport**: This class contains the covered file name, the lines covered and how many times they were reached, and also some useful methods for coverage reporting.
 
-If you want to build your own coverage reporting tool, take a look at the `CodeCoverageRunner` class, it is the main class that runs the tests and extracts the coverage reports.
+If you want to build your own coverage reporting tool, take a look at the `CodeCoverageExtractor` class, it is the main class that runs the tests and extracts the coverage reports.

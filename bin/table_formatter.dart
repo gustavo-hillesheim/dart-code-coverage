@@ -1,7 +1,7 @@
-import 'package:code_coverage/src/components/table_builder.dart';
+import 'table_builder.dart';
+import 'utils.dart';
 import 'package:code_coverage/src/models/coverage_report.dart';
 import 'package:ansicolor/ansicolor.dart';
-import 'package:code_coverage/src/utils.dart';
 
 class TableFormatter {
   String format(
