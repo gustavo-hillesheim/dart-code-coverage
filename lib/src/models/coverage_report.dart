@@ -1,5 +1,11 @@
+import 'package:code_coverage/code_coverage.dart';
 import 'package:code_coverage/src/models/file_coverage_report.dart';
 
+/// Representation of a coverage report for a package.
+/// This class contains a map of covered files and a list of all package files.
+/// There are also some useful methods for calculating total line coverage percent, and also calculate file coverage percent.
+///
+/// [CoverageReport]s are created through a [CoverageReportFactory].
 class CoverageReport {
   final Map<String, FileCoverageReport> coveredFiles;
   final List<String> packageFiles;

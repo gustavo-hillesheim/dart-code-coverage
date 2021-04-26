@@ -7,6 +7,8 @@ import 'package:code_coverage/src/models/coverage_report.dart';
 import 'package:code_coverage/src/utils.dart';
 import 'package:path/path.dart' as path;
 
+/// Component used to generate a [CoverageReport] for a given package.
+/// This is the main class of the package, summarizing all of its funcionality.
 class CodeCoverageExtractor {
   final HitmapReader hitmapReader;
   final CoverageReportFactory coverageReportFactory;
@@ -18,6 +20,7 @@ class CodeCoverageExtractor {
     required this.processRunner,
   });
 
+  /// Creates a [CodeCoverageExtractor] instance with default  dependencies
   factory CodeCoverageExtractor.createDefault() {
     return CodeCoverageExtractor(
       hitmapReader: HitmapReader(),
@@ -26,6 +29,10 @@ class CodeCoverageExtractor {
     );
   }
 
+  /// Runs the given package tests with the [processRunner], parses the coverage output
+  /// with the [hitmapReader] and creates a [CoverageReport] with the [coverageReportFactory]
+  /// with the resulting hitmaps. If the showTestOutput flag is true, the tests
+  /// outputs will be shows in the console
   Future<CoverageReport> extract({
     required Directory packageDirectory,
     required bool showTestOutput,

@@ -4,7 +4,11 @@ import 'package:path/path.dart' as path;
 import 'package:code_coverage/src/models/coverage_report.dart';
 import 'package:code_coverage/src/models/file_coverage_report.dart';
 
+/// Component used to create a [CoverageReport] out of a hitmap and package info in a easy way
 class CoverageReportFactory {
+  /// creates a [CoverageReport] using a hitmap to know which files were covered,
+  /// and the packageDirectory to know which files were not covered. The package name
+  /// is used to remove the package:${package-name} prefix
   CoverageReport create({
     required Map<String, Map<int, int>> hitmap,
     required Directory packageDirectory,
