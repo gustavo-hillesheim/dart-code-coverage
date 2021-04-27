@@ -25,7 +25,7 @@ As you can see, the CLI will run your package tests and output a table showing w
 
 #### Options
 
-Even though the base command you do for some people, there are some options to provide flexibility for the user, they are:
+Even though the base command will do for some people, there are some options to provide flexibility for the user, they are:
 
 - **--showOutput, -o**: This option will show the `dart test` output, so the total output will be something like this:
 <pre>
@@ -46,13 +46,28 @@ Running package tests...
 └────────────────────┴────────────┴───────────────────┘
 18.18% (2/11) of all files were covered
 </pre>
-- **--packageDir, -d**: With this option you can specify the directory of the package that will be tested.
+- **--showUncovered, -u**: This option will show the list of uncovered files, this will look like this:
+<pre>
+Running package tests...
+┌───────────────────┬────────────┬─────────────────┐
+│ File              │ Coverage % │ Uncovered Lines │
+├───────────────────┼────────────┼─────────────────┤
+│ All covered files │      80.00 │                 │
+│ a.dart            │      80.00 │ 20-21           │
+└───────────────────┴────────────┴─────────────────┘
+50.00% (1/2) of all files were covered
+
+Uncovered files:
+- b.dart
+</pre>
+- **--packageDir, -d**: With this option you can specify the directory of the package that will be tested;
+- **--minimum, -m**: This option allows you to require a minimum code coverage, if the line or file coverage does not reaches the value specified, the process will exit with code 1.
 
 ## Package
 
 You can also use code_coverage as a package, so you can create your custom code coverage reports and applications!<br>
 Here are the classes that you are likely to use:
-- **HitmapReader**: Using the methods `fromDirectory`, `fromFile` and `fromString`, you can create a Hitmap object containing the files and lines reached in your tests. This class is used with `dart test` `coverage` to read and parse the coverage output;
+- **HitmapReader**: Using the methods `fromDirectory`, `fromFile` and `fromString`, you can create a Hitmap object containing the files and lines reached in your tests. This class is used with `dart test --coverage` to read and parse the coverage output;
 - **CoverageReportFactory**: Using the method `create` with a hitmap, base directory of a package and the package name, you can create a `CoverageReport`. The package directory is needed so the report will contain the uncovered files (dart test coverage output does not contain these), and the package name is used to filter the coverage output (it contains all the files covered, including internals);
 - **CoverageReport**: This class contains the covered files reports, names of uncovered files, and also some useful methods for coverage reporting;
 - **FileCoverageReport**: This class contains the covered file name, the lines covered and how many times they were reached, and also some useful methods for coverage reporting.
