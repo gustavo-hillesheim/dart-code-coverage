@@ -22,6 +22,12 @@ void main(List<String> arguments) async {
   );
 
   printCoverageReport(coverageReport);
+  if (args.showUncovered) {
+    print('\nUncovered files:');
+    coverageReport.getUncoveredFiles().forEach((file) {
+      print('- $file');
+    });
+  }
 }
 
 void printCoverageReport(CoverageReport coverageReport) {
@@ -43,11 +49,20 @@ ArgParser defineArgsParser() {
     abbr: 'd',
     help: 'Directory containing the package to be tested',
   );
-  argsParser.addFlag('showOutput',
-      abbr: 'o',
-      help: 'Show tests output',
-      negatable: false,
-      defaultsTo: false);
+  argsParser.addFlag(
+    'showOutput',
+    abbr: 'o',
+    help: 'Show tests output',
+    negatable: false,
+    defaultsTo: false,
+  );
+  argsParser.addFlag(
+    'showUncovered',
+    abbr: 'u',
+    help: 'Show which files were not covered',
+    negatable: false,
+    defaultsTo: false,
+  );
   argsParser.addFlag(
     'help',
     abbr: 'h',
@@ -63,11 +78,13 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
       ? Directory(argsResult['packageDir'])
       : Directory.current;
   final showOutput = argsResult['showOutput'];
+  final showUncovered = argsResult['showUncovered'];
   final help = argsResult['help'];
 
   return ApplicationArgs(
     packageDirectory: packageDirectory,
     showOutput: showOutput,
+    showUncovered: showUncovered,
     help: help,
   );
 }
@@ -88,11 +105,13 @@ String? validateArgs(ApplicationArgs args) {
 class ApplicationArgs {
   final Directory packageDirectory;
   final bool showOutput;
+  final bool showUncovered;
   final bool help;
 
   ApplicationArgs({
     required this.packageDirectory,
     required this.showOutput,
+    required this.showUncovered,
     required this.help,
   });
 }

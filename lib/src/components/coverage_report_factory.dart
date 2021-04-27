@@ -52,8 +52,7 @@ class CoverageReportFactory {
         .where((filePath) => filePath.endsWith('.dart'))
         .map((filePath) {
       final relativeFilePath = filePath.replaceFirst(libDirPrefix, '');
-      final filePackagePath = 'package:$package/$relativeFilePath';
-      return filePackagePath;
+      return relativeFilePath;
     }).toList();
   }
 }

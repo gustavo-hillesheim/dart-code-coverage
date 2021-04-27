@@ -45,4 +45,10 @@ class CoverageReport {
         .map((fileReportDetails) => fileReportDetails.totalLines)
         .reduce((totalLines, fileLines) => totalLines + fileLines);
   }
+
+  List<String> getUncoveredFiles() {
+    return packageFiles
+        .where((file) => !coveredFiles.containsKey(file))
+        .toList();
+  }
 }
