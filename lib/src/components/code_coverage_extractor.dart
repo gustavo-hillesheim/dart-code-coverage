@@ -31,9 +31,11 @@ class CodeCoverageExtractor {
 
   /// Runs the given package tests with the [processRunner], parses the coverage output
   /// with the [hitmapReader] and creates a [CoverageReport] with the [coverageReportFactory]
-  /// with the resulting hitmaps. If the showTestOutput flag is true, the tests
-  /// outputs will be shows in the console
-  Future<CoverageReport> extract({
+  /// with the resulting hitmaps.
+  /// Return a [CoverageExtractionResult] containing the coverage report and
+  /// the status of the tests executed as a [TestResultStatus].
+  /// If the showTestOutput flag is true, the tests outputs will be shows in the console
+  Future<CoverageExtractionResult> extract({
     required Directory packageDirectory,
     required bool showTestOutput,
   }) async {
@@ -45,7 +47,7 @@ class CodeCoverageExtractor {
     }
 
     print('Running package tests...');
-    await processRunner.run(
+    final exitCode = await processRunner.run(
       'dart',
       ['test', '--coverage=${coverageOutputDirectory.absolute.path}'],
       workingDirectory: packageDirectory,
@@ -61,10 +63,15 @@ class CodeCoverageExtractor {
       await coverageOutputDirectory.delete(recursive: true);
     }
 
-    return coverageReportFactory.create(
+    final coverageReport = coverageReportFactory.create(
       hitmap: hitmap,
       package: package,
       packageDirectory: packageDirectory,
+    );
+    return CoverageExtractionResult(
+      testResultStatus:
+          exitCode == 1 ? TestResultStatus.ERROR : TestResultStatus.SUCCESS,
+      coverageReport: coverageReport,
     );
   }
 
@@ -93,3 +100,15 @@ class CodeCoverageExtractor {
     );
   }
 }
+
+class CoverageExtractionResult {
+  final TestResultStatus testResultStatus;
+  final CoverageReport coverageReport;
+
+  CoverageExtractionResult({
+    required this.testResultStatus,
+    required this.coverageReport,
+  });
+}
+
+enum TestResultStatus { ERROR, SUCCESS }

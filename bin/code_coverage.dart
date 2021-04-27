@@ -16,10 +16,12 @@ void main(List<String> arguments) async {
     return;
   }
 
-  final coverageReport = await CodeCoverageExtractor.createDefault().extract(
+  final coverageExtractionResult =
+      await CodeCoverageExtractor.createDefault().extract(
     packageDirectory: args.packageDirectory,
     showTestOutput: args.showOutput,
   );
+  final coverageReport = coverageExtractionResult.coverageReport;
 
   printCoverageReport(coverageReport);
   if (args.showUncovered) {
@@ -27,6 +29,11 @@ void main(List<String> arguments) async {
     coverageReport.getUncoveredFiles().forEach((file) {
       print('- $file');
     });
+  }
+
+  if (coverageExtractionResult.testResultStatus == TestResultStatus.ERROR) {
+    print('Some tests failed, exiting with code 1');
+    exit(1);
   }
 }
 
