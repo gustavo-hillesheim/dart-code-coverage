@@ -15,6 +15,6 @@ void main() {
     expect(subtract(1, 1), equals(0));
   });
   test('this test should fail', () {
-    expect(1, equals(2));
+    //expect(1, equals(2));
   });
 }

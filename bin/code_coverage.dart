@@ -30,11 +30,7 @@ void main(List<String> arguments) async {
       print('- $file');
     });
   }
-
-  if (coverageExtractionResult.testResultStatus == TestResultStatus.ERROR) {
-    print('Some tests failed, exiting with code 1');
-    exit(1);
-  }
+  validateResult(coverageExtractionResult, args);
 }
 
 void printCoverageReport(CoverageReport coverageReport) {
@@ -49,12 +45,41 @@ void printCoverageReport(CoverageReport coverageReport) {
   ));
 }
 
+void validateResult(
+    CoverageExtractionResult coverageExtractionResult, ApplicationArgs args) {
+  if (coverageExtractionResult.testResultStatus == TestResultStatus.ERROR) {
+    print('Some tests failed, exiting with code 1');
+    exit(1);
+  }
+  final coverageReport = coverageExtractionResult.coverageReport;
+
+  if (coverageReport.calculateLineCoveragePercent() * 100 <
+      args.minimumCoverage) {
+    print('The minimum line coverage was not reached, exiting with code 1');
+    exit(1);
+  }
+
+  if (coverageReport.calculateFileCoveragePercent() * 100 <
+      args.minimumCoverage) {
+    print('The minimum file coverage was not reached, exiting with code 1');
+    exit(1);
+  }
+}
+
 ArgParser defineArgsParser() {
   final argsParser = ArgParser();
   argsParser.addOption(
     'packageDir',
     abbr: 'd',
-    help: 'Directory containing the package to be tested',
+    help:
+        'Directory containing the package to be tested, if not informed will use current directory',
+  );
+  argsParser.addOption(
+    'minimum',
+    abbr: 'm',
+    help:
+        'Minimum coverage percentage required, if not reached, will exit with code 1',
+    defaultsTo: '0',
   );
   argsParser.addFlag(
     'showOutput',
@@ -84,14 +109,23 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final packageDirectory = argsResult.wasParsed('packageDir')
       ? Directory(argsResult['packageDir'])
       : Directory.current;
+  final minimumCoverage = argsResult['minimum'];
   final showOutput = argsResult['showOutput'];
   final showUncovered = argsResult['showUncovered'];
   final help = argsResult['help'];
+
+  try {
+    int.parse(minimumCoverage);
+  } catch (e) {
+    print(kRedPen('minimum option is not an integer'));
+    exit(1);
+  }
 
   return ApplicationArgs(
     packageDirectory: packageDirectory,
     showOutput: showOutput,
     showUncovered: showUncovered,
+    minimumCoverage: int.parse(minimumCoverage),
     help: help,
   );
 }
@@ -111,12 +145,14 @@ String? validateArgs(ApplicationArgs args) {
 
 class ApplicationArgs {
   final Directory packageDirectory;
+  final int minimumCoverage;
   final bool showOutput;
   final bool showUncovered;
   final bool help;
 
   ApplicationArgs({
     required this.packageDirectory,
+    required this.minimumCoverage,
     required this.showOutput,
     required this.showUncovered,
     required this.help,
