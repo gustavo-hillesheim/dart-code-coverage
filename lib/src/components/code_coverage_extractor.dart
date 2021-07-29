@@ -40,38 +40,28 @@ class CodeCoverageExtractor {
     required bool showTestOutput,
   }) async {
     final coverageOutputDirectory = _getCoverageOutputDir(packageDirectory);
-    final package = getPackageName(directory: packageDirectory);
-    if (package == null) {
+    final packageData = getPackageData(directory: packageDirectory);
+    if (packageData == null) {
       throw Exception(
           'Could not find package name in pubspec.yaml; Working directory: ${packageDirectory.absolute.path}');
     }
 
-    print('Running package tests...');
-    final exitCode = await processRunner.run(
-      'dart',
-      ['test', '--coverage=${coverageOutputDirectory.absolute.path}'],
-      workingDirectory: packageDirectory,
-      showOutput: showTestOutput,
-    );
-
-    final hitmap = _filterAndSimpliflyFileNames(
-      await hitmapReader.fromDirectory(coverageOutputDirectory),
-      package: package,
+    print('Running tests for package ${packageData.name}...');
+    final testRunner = _createTestRunner(packageData);
+    final testResult = await testRunner.runTests(
+      packageData,
+      coverageOutputDirectory: coverageOutputDirectory,
+      showTestOutput: showTestOutput,
     );
 
     if (coverageOutputDirectory.existsSync()) {
       await coverageOutputDirectory.delete(recursive: true);
     }
-
-    final coverageReport = coverageReportFactory.create(
-      hitmap: hitmap,
-      package: package,
-      packageDirectory: packageDirectory,
-    );
     return CoverageExtractionResult(
-      testResultStatus:
-          exitCode == 1 ? TestResultStatus.ERROR : TestResultStatus.SUCCESS,
-      coverageReport: coverageReport,
+      testResultStatus: testResult.exitCode == 1
+          ? TestResultStatus.ERROR
+          : TestResultStatus.SUCCESS,
+      coverageReport: testResult.coverageReport,
     );
   }
 
@@ -82,9 +72,63 @@ class CodeCoverageExtractor {
     );
   }
 
+  TestRunner _createTestRunner(PackageData packageData) {
+    if (packageData.isFlutterProject) {
+      return FlutterTestRunner(processRunner, coverageReportFactory);
+    } else {
+      return DartTestRunner(processRunner, coverageReportFactory, hitmapReader);
+    }
+  }
+
   String _generateCoverageOutputDirName() {
     final currentTimeMillis = DateTime.now().millisecondsSinceEpoch;
     return 'code_coverage_$currentTimeMillis';
+  }
+}
+
+abstract class TestRunner {
+  Future<TestResult> runTests(
+    PackageData packageData, {
+    required Directory coverageOutputDirectory,
+    required bool showTestOutput,
+  });
+}
+
+class DartTestRunner extends TestRunner {
+  final ProcessRunner processRunner;
+  final CoverageReportFactory coverageReportFactory;
+  final HitmapReader hitmapReader;
+
+  DartTestRunner(
+    this.processRunner,
+    this.coverageReportFactory,
+    this.hitmapReader,
+  );
+
+  @override
+  Future<TestResult> runTests(
+    PackageData packageData, {
+    required Directory coverageOutputDirectory,
+    required bool showTestOutput,
+  }) async {
+    final exitCode = await processRunner.run(
+      'dart',
+      ['test', '--coverage=${coverageOutputDirectory.absolute.path}'],
+      workingDirectory: packageData.directory,
+      showOutput: showTestOutput,
+    );
+
+    final hitmap = _filterAndSimpliflyFileNames(
+      await hitmapReader.fromDirectory(coverageOutputDirectory),
+      package: packageData.name,
+    );
+
+    final coverageReport = coverageReportFactory.create(
+      hitmap: hitmap,
+      package: packageData.name,
+      packageDirectory: packageData.directory,
+    );
+    return TestResult(coverageReport: coverageReport, exitCode: exitCode);
   }
 
   Map<String, Map<int, int>> _filterAndSimpliflyFileNames(
@@ -99,6 +143,81 @@ class CodeCoverageExtractor {
           MapEntry(fileName.replaceFirst('package:$package/', ''), hits),
     );
   }
+}
+
+class FlutterTestRunner extends TestRunner {
+  final ProcessRunner processRunner;
+  final CoverageReportFactory coverageReportFactory;
+
+  FlutterTestRunner(
+    this.processRunner,
+    this.coverageReportFactory,
+  );
+
+  @override
+  Future<TestResult> runTests(
+    PackageData packageData, {
+    required Directory coverageOutputDirectory,
+    required bool showTestOutput,
+  }) async {
+    final coverageOutputFilePath =
+        '${coverageOutputDirectory.absolute.path}${path.separator}lcov.info';
+    final exitCode = await processRunner.run(
+      'flutter',
+      ['test', '--coverage', '--coverage-path=$coverageOutputFilePath'],
+      workingDirectory: packageData.directory,
+      showOutput: showTestOutput,
+    );
+
+    final hitmap = _parseTestCoverage(coverageOutputFilePath);
+
+    final coverageReport = coverageReportFactory.create(
+      hitmap: hitmap,
+      package: packageData.name,
+      packageDirectory: packageData.directory,
+    );
+    return TestResult(coverageReport: coverageReport, exitCode: exitCode);
+  }
+
+  Map<String, Map<int, int>> _parseTestCoverage(String filePath) {
+    final lcovData = File(filePath).readAsStringSync();
+    final result = <String, Map<int, int>>{};
+    lcovData
+        .split('end_of_record')
+        .map((fileCoverage) => fileCoverage.trim())
+        .where((fileCoverage) =>
+            fileCoverage.isNotEmpty && fileCoverage.startsWith('SF:'))
+        .forEach(
+      (fileCoverage) {
+        final lines = fileCoverage.split('\n');
+        final fileName =
+            lines.first.replaceFirst('SF:lib${path.separator}', '');
+        final reachedLines =
+            lines.where((line) => line.startsWith('DA:')).toList();
+        final hitmap = _createHitmap(reachedLines);
+        result[fileName] = hitmap;
+      },
+    );
+    return result;
+  }
+
+  Map<int, int> _createHitmap(List<String> fileLinesReached) {
+    final fileHitmap = <int, int>{};
+    for (var line in fileLinesReached) {
+      final segments = line.substring(3).split(',');
+      final lineNumber = int.parse(segments.first);
+      final lineReached = int.parse(segments.last);
+      fileHitmap[lineNumber] = lineReached;
+    }
+    return fileHitmap;
+  }
+}
+
+class TestResult {
+  final int exitCode;
+  final CoverageReport coverageReport;
+
+  TestResult({required this.exitCode, required this.coverageReport});
 }
 
 class CoverageExtractionResult {

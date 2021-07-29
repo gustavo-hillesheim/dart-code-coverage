@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:ansicolor/ansicolor.dart';
+import 'package:process_run/which.dart';
 
 /// Wrapper for the [Process.start] method that reads the stdout and stderr streams and outputs then to the console
 class ProcessRunner {
@@ -14,7 +15,7 @@ class ProcessRunner {
     bool showOutput = false,
   }) async {
     final process = await Process.start(
-      executable,
+      whichSync(executable) ?? executable,
       args,
       workingDirectory: workingDirectory?.absolute.path,
     );
