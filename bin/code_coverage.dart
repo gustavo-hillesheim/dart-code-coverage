@@ -26,9 +26,9 @@ void main(List<String> arguments) async {
   printCoverageReport(coverageReport);
   if (args.showUncovered) {
     print('\nUncovered files:');
-    coverageReport.getUncoveredFiles().forEach((file) {
-      print('- $file');
-    });
+    final uncoveredFiles = coverageReport.getUncoveredFiles();
+    uncoveredFiles.sort();
+    uncoveredFiles.forEach((file) => print('- $file'));
   }
   validateResult(coverageExtractionResult, args);
 }

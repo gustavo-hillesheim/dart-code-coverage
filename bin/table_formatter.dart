@@ -19,7 +19,10 @@ class TableFormatter {
       colored: colored,
     );
 
-    report.coveredFiles.values.forEach((fileReport) {
+    final filesNames = report.coveredFiles.keys.toList();
+    filesNames.sort();
+    filesNames.forEach((fileName) {
+      final fileReport = report.coveredFiles[fileName]!;
       _addRow(
         tableBuilder,
         fileName: fileReport.fileName,
