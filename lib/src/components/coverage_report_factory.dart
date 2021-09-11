@@ -14,6 +14,7 @@ class CoverageReportFactory {
     required Directory packageDirectory,
     required String package,
     String? includeRegex,
+    String? excludeRegex,
   }) {
     var coveredFiles = _extractFilesReportDetails(hitmap);
     var packageFiles = _findPackageFilesNames(
@@ -24,6 +25,11 @@ class CoverageReportFactory {
       final regExp = RegExp(includeRegex);
       coveredFiles.removeWhere((path, _) => !regExp.hasMatch(path));
       packageFiles.removeWhere((path) => !regExp.hasMatch(path));
+    }
+    if (excludeRegex != null) {
+      final regExp = RegExp(excludeRegex);
+      coveredFiles.removeWhere((path, _) => regExp.hasMatch(path));
+      packageFiles.removeWhere((path) => regExp.hasMatch(path));
     }
     return CoverageReport(
       coveredFiles: coveredFiles,
