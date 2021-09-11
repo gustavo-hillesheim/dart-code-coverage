@@ -23,9 +23,14 @@ class ProcessRunner {
     final nullPrinter = (_) {};
     final errorPen = AnsiPen()..red();
     final errorPrinter = (line) => print(errorPen(line));
-    _printOutput(process.stdout, printer: showOutput ? print : nullPrinter);
-    _printOutput(process.stderr,
-        printer: showOutput ? errorPrinter : nullPrinter);
+    _printOutput(
+      process.stdout,
+      printer: showOutput ? print : nullPrinter,
+    );
+    _printOutput(
+      process.stderr,
+      printer: showOutput ? errorPrinter : nullPrinter,
+    );
 
     return await process.exitCode;
   }

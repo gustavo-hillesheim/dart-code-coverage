@@ -27,10 +27,11 @@ class CoverageReportFactory {
       Map<String, Map<int, int>> hitmap) {
     final filesReportDetails = <String, FileCoverageReport>{};
 
-    for (final fileName in hitmap.keys) {
+    for (final hitmapEntry in hitmap.entries) {
+      final fileName = path.normalize(hitmapEntry.key);
       filesReportDetails[fileName] = FileCoverageReport(
         fileName: fileName,
-        linesCoverage: hitmap[fileName]!,
+        linesCoverage: hitmapEntry.value,
       );
     }
 
@@ -46,7 +47,7 @@ class CoverageReportFactory {
     final libDirPrefix = 'lib${path.separator}';
     return packageDirectory
         .listSync(recursive: true)
-        .map((file) => file.absolute.path)
+        .map((file) => path.normalize(file.absolute.path))
         .map((filePath) => filePath.replaceFirst(srcDirPrefix, ''))
         .where((filePath) => filePath.startsWith('lib'))
         .where((filePath) => filePath.endsWith('.dart'))
