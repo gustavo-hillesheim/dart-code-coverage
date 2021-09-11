@@ -44,9 +44,10 @@ class TableFormatter {
   }) {
     final pen = colored ? coveragePen(coveragePercent) : AnsiPen();
     tableBuilder.addRow([
-      fileName,
-      (coveragePercent * 100).toStringAsFixed(2),
-      uncoveredLines,
+      TableCell(fileName),
+      TableCell((coveragePercent * 100).toStringAsFixed(2),
+          alignment: CellAlignment.RIGHT),
+      TableCell(uncoveredLines),
     ], pen: pen);
   }
 }

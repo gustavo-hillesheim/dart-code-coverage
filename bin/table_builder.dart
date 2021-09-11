@@ -1,7 +1,7 @@
 import 'package:ansicolor/ansicolor.dart';
 
 class _TableRowDefinition {
-  final List<String> cells;
+  final List<TableCell> cells;
   final AnsiPen? pen;
 
   _TableRowDefinition({required this.cells, this.pen});
@@ -29,7 +29,7 @@ class TableBuilder {
     return this;
   }
 
-  TableBuilder addRow(List<String> cells, {AnsiPen? pen}) {
+  TableBuilder addRow(List<TableCell> cells, {AnsiPen? pen}) {
     _rows.add(_TableRowDefinition(cells: cells, pen: pen));
     return this;
   }
@@ -46,8 +46,8 @@ class TableBuilder {
     _rows.forEach((row) {
       for (var i = 0; i < row.cells.length; i++) {
         final rowCell = row.cells[i];
-        if (rowCell.length > cellsSizes[i]) {
-          cellsSizes[i] = rowCell.length;
+        if (rowCell.text.length > cellsSizes[i]) {
+          cellsSizes[i] = rowCell.text.length;
         }
       }
     });
@@ -84,9 +84,9 @@ class TableBuilder {
         final isLastCell = ri == cells.length - 1;
         final cellSize = cellsSizes[ri];
         final cellValue = _addPaddingAndAlignment(
-          cells[ri],
+          cells[ri].text,
           cellSize: cellSize,
-          alignment: _getCellAlignment(cells[ri]),
+          alignment: cells[ri].alignment,
         );
         rowsStr += VERTICAL_BAR + pen(cellValue);
         if (isLastCell) {
@@ -101,15 +101,6 @@ class TableBuilder {
       }
     }
     return rowsStr;
-  }
-
-  CellAlignment _getCellAlignment(String cellValue) {
-    final isNumber =
-        int.tryParse(cellValue) != null || double.tryParse(cellValue) != null;
-    if (isNumber) {
-      return CellAlignment.RIGHT;
-    }
-    return CellAlignment.LEFT;
   }
 
   String _buildRowDivider(
@@ -173,6 +164,13 @@ class TableBuilder {
         (alignment == CellAlignment.LEFT ? cellSize - value.length : 0);
     return (' ' * leftEmptySpaceSize) + value + (' ' * rightEmptySpaceSize);
   }
+}
+
+class TableCell {
+  final String text;
+  final CellAlignment alignment;
+
+  TableCell(this.text, {this.alignment = CellAlignment.LEFT});
 }
 
 enum CellAlignment { LEFT, RIGHT }
