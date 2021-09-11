@@ -23,9 +23,9 @@ void main(List<String> arguments) async {
 
   final coverageExtractionResult = await CodeCoverageExtractor.createDefault()
       .extract(
-    packageDirectory: args.packageDirectory,
-    showTestOutput: args.showOutput,
-  )
+          packageDirectory: args.packageDirectory,
+          showTestOutput: args.showOutput,
+          includeRegex: args.includeRegex)
       .onError((dynamic error, _) {
     print(kRedPen('Error while extracting coverage: ${error?.message}'));
     exit(1);
@@ -83,6 +83,10 @@ ArgParser defineArgsParser() {
     help:
         'Directory containing the package to be tested, if not informed will use current directory',
   );
+  argsParser.addOption('include',
+      abbr: 'i',
+      help:
+          'Regex of files to be included to the coverage. If informed, only files in a path that matches this regex will be reported');
   argsParser.addOption(
     'minimum',
     abbr: 'm',
@@ -118,6 +122,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final packageDirectory = argsResult.wasParsed('packageDir')
       ? Directory(argsResult['packageDir'])
       : Directory.current;
+  final include = argsResult['include'];
   final minimumCoverage = argsResult['minimum'];
   final showOutput = argsResult['showOutput'];
   final showUncovered = argsResult['showUncovered'];
@@ -136,6 +141,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     showUncovered: showUncovered,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
+    includeRegex: include,
   );
 }
 
@@ -154,6 +160,7 @@ String? validateArgs(ApplicationArgs args) {
 
 class ApplicationArgs {
   final Directory packageDirectory;
+  final String? includeRegex;
   final int minimumCoverage;
   final bool showOutput;
   final bool showUncovered;
@@ -165,5 +172,6 @@ class ApplicationArgs {
     required this.showOutput,
     required this.showUncovered,
     required this.help,
+    this.includeRegex,
   });
 }

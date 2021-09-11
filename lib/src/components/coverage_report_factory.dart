@@ -13,13 +13,21 @@ class CoverageReportFactory {
     required Map<String, Map<int, int>> hitmap,
     required Directory packageDirectory,
     required String package,
+    String? includeRegex,
   }) {
+    var coveredFiles = _extractFilesReportDetails(hitmap);
+    var packageFiles = _findPackageFilesNames(
+      packageDirectory: packageDirectory,
+      package: package,
+    );
+    if (includeRegex != null) {
+      final regExp = RegExp(includeRegex);
+      coveredFiles.removeWhere((path, _) => !regExp.hasMatch(path));
+      packageFiles.removeWhere((path) => !regExp.hasMatch(path));
+    }
     return CoverageReport(
-      coveredFiles: _extractFilesReportDetails(hitmap),
-      packageFiles: _findPackageFilesNames(
-        packageDirectory: packageDirectory,
-        package: package,
-      ),
+      coveredFiles: coveredFiles,
+      packageFiles: packageFiles,
     );
   }
 

@@ -38,6 +38,7 @@ class CodeCoverageExtractor {
   Future<CoverageExtractionResult> extract({
     required Directory packageDirectory,
     required bool showTestOutput,
+    String? includeRegex,
   }) async {
     if (!hasTestDirectory(packageDirectory)) {
       throw Exception(
@@ -56,6 +57,7 @@ class CodeCoverageExtractor {
       packageData,
       coverageOutputDirectory: coverageOutputDirectory,
       showTestOutput: showTestOutput,
+      includeRegex: includeRegex,
     );
 
     if (coverageOutputDirectory.existsSync()) {
@@ -101,6 +103,7 @@ abstract class TestRunner {
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
+    String? includeRegex,
   });
 }
 
@@ -120,6 +123,7 @@ class DartTestRunner extends TestRunner {
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
+    String? includeRegex,
   }) async {
     final exitCode = await processRunner.run(
       'dart',
@@ -137,6 +141,7 @@ class DartTestRunner extends TestRunner {
       hitmap: hitmap,
       package: packageData.name,
       packageDirectory: packageData.directory,
+      includeRegex: includeRegex,
     );
     return TestResult(coverageReport: coverageReport, exitCode: exitCode);
   }
@@ -169,6 +174,7 @@ class FlutterTestRunner extends TestRunner {
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
+    String? includeRegex,
   }) async {
     final coverageOutputFilePath =
         '${coverageOutputDirectory.absolute.path}${path.separator}lcov.info';
@@ -185,6 +191,7 @@ class FlutterTestRunner extends TestRunner {
       hitmap: hitmap,
       package: packageData.name,
       packageDirectory: packageData.directory,
+      includeRegex: includeRegex,
     );
     return TestResult(coverageReport: coverageReport, exitCode: exitCode);
   }
