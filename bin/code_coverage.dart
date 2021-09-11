@@ -16,6 +16,11 @@ void main(List<String> arguments) async {
     return;
   }
 
+  if (args.help) {
+    print('Usage:\n${argsParser.usage}');
+    return;
+  }
+
   final coverageExtractionResult =
       await CodeCoverageExtractor.createDefault().extract(
     packageDirectory: args.packageDirectory,
