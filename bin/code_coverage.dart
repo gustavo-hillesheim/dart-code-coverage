@@ -21,11 +21,15 @@ void main(List<String> arguments) async {
     return;
   }
 
-  final coverageExtractionResult =
-      await CodeCoverageExtractor.createDefault().extract(
+  final coverageExtractionResult = await CodeCoverageExtractor.createDefault()
+      .extract(
     packageDirectory: args.packageDirectory,
     showTestOutput: args.showOutput,
-  );
+  )
+      .onError((dynamic error, _) {
+    print(kRedPen('Error while extracting coverage: ${error?.message}'));
+    exit(1);
+  });
   final coverageReport = coverageExtractionResult.coverageReport;
 
   printCoverageReport(coverageReport);

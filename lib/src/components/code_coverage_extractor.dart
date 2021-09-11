@@ -39,11 +39,15 @@ class CodeCoverageExtractor {
     required Directory packageDirectory,
     required bool showTestOutput,
   }) async {
+    if (!hasTestDirectory(packageDirectory)) {
+      throw Exception(
+          'Could not find "test" directory in "${packageDirectory.absolute.path}"');
+    }
     final coverageOutputDirectory = _getCoverageOutputDir(packageDirectory);
     final packageData = getPackageData(directory: packageDirectory);
     if (packageData == null) {
       throw Exception(
-          'Could not find package name in pubspec.yaml; Working directory: ${packageDirectory.absolute.path}');
+          'Could not find package name in pubspec.yaml. Working directory: ${packageDirectory.absolute.path}');
     }
 
     print('Running tests for package ${packageData.name}...');
@@ -63,6 +67,12 @@ class CodeCoverageExtractor {
           : TestResultStatus.SUCCESS,
       coverageReport: testResult.coverageReport,
     );
+  }
+
+  bool hasTestDirectory(Directory packageDirectory) {
+    return Directory(
+            path.relative('test', from: packageDirectory.absolute.path))
+        .existsSync();
   }
 
   Directory _getCoverageOutputDir(Directory directory) {
