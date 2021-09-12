@@ -23,9 +23,9 @@ Running package tests...
 
 As you can see, the CLI will run your package tests and output a table showing which files and how much of them were reached.
 
-#### Options
+#### Configuration
 
-Even though the base command will do for some people, there are some options to provide flexibility for the user, they are:
+These are the available options and flags for configuring the coverage report:
 
 - **--showOutput, -o**: This option will show the `dart test` output, so the total output will be something like this:
 <pre>
@@ -61,7 +61,28 @@ Uncovered files:
 - b.dart
 </pre>
 - **--packageDir, -d**: With this option you can specify the directory of the package that will be tested;
-- **--minimum, -m**: This option allows you to require a minimum code coverage, if the line or file coverage does not reaches the value specified, the process will exit with code 1.
+- **--minimum, -m**: This option allows you to require a minimum code coverage, if the line or file coverage does not reaches the value specified, the process will exit with code 1;
+- **--include, -i**: Allows you to specify a regex that will be matched against all paths, and only those that match it will be included in the report. For example, using the regex `utils`, this would be the output:
+<pre>
+Running package tests...
+┌────────────────────┬────────────┬───────────────────┐
+│ File               │ Coverage % │ Uncovered Lines   │
+├────────────────────┼────────────┼───────────────────┤
+│ All covered files  │      52.38 │                   │
+│ src/utils.dart     │      52.38 │ 38-42, 44, 48-51  │
+└────────────────────┴────────────┴───────────────────┘
+100% (1/1) of all files were covered
+</pre>
+- **--exclude, -e**: Allows you to specify a regex that will be matched agains all paths, and only those that don't match it will be included in the report. For example, using the regex `utils`, this would be the output:
+<pre>
+┌────────────────────┬────────────┬───────────────────┐
+│ File               │ Coverage % │ Uncovered Lines   │
+├────────────────────┼────────────┼───────────────────┤
+│ All covered files  │       0.00 │                   │
+│ src/constants.dart │       0.00 │ 3-5               │
+└────────────────────┴────────────┴───────────────────┘
+20% (2/10) of all files were covered
+</pre>
 
 ## Package
 
