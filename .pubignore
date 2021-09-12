@@ -1,4 +1,3 @@
 example/
 Makefile
-.gitignore
 analysis_options.yaml
