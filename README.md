@@ -62,7 +62,7 @@ Uncovered files:
 </pre>
 - **--packageDir, -d**: With this option you can specify the directory of the package that will be tested;
 - **--minimum, -m**: This option allows you to require a minimum code coverage, if the line or file coverage does not reaches the value specified, the process will exit with code 1;
-- **--include, -i**: Allows you to specify a regex that will be matched against all paths, and only those that match it will be included in the report. For example, using the regex `utils`, this would be the output:
+- **--include, -i**: Allows you to specify multiple regexes that will be matched against all paths, and those that match any of the regexes will be included in the report. For example, using the regex `utils`, this would be the output:
 <pre>
 Running package tests...
 ┌────────────────────┬────────────┬───────────────────┐
@@ -73,7 +73,7 @@ Running package tests...
 └────────────────────┴────────────┴───────────────────┘
 100% (1/1) of all files were covered
 </pre>
-- **--exclude, -e**: Allows you to specify a regex that will be matched agains all paths, and only those that don't match it will be included in the report. For example, using the regex `utils`, this would be the output:
+- **--exclude, -e**: Allows you to specify multiple regexes that will be matched agains all paths, and those that don't match all of the regexes will be included in the report. For example, using the regex `utils`, this would be the output:
 <pre>
 ┌────────────────────┬────────────┬───────────────────┐
 │ File               │ Coverage % │ Uncovered Lines   │

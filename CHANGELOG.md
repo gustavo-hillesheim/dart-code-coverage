@@ -1,3 +1,8 @@
+## 1.3.0
+
+### Changes
+- Changed 'include' and 'exclude' options to accept multiple arguments
+
 ## 1.2.0
 
 ### Features
