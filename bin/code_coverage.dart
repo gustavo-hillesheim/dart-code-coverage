@@ -25,8 +25,8 @@ void main(List<String> arguments) async {
       .extract(
     packageDirectory: args.packageDirectory,
     showTestOutput: args.showOutput,
-    includeRegex: args.includeRegex,
-    excludeRegex: args.excludeRegex,
+    includeRegexes: args.includeRegexes,
+    excludeRegexes: args.excludeRegexes,
   )
       .onError((dynamic error, _) {
     print(kRedPen('Error while extracting coverage: ${error?.message}'));
@@ -36,10 +36,12 @@ void main(List<String> arguments) async {
 
   printCoverageReport(coverageReport);
   if (args.showUncovered) {
-    print('\nUncovered files:');
     final uncoveredFiles = coverageReport.getUncoveredFiles();
-    uncoveredFiles.sort();
-    uncoveredFiles.forEach((file) => print('- $file'));
+    if (uncoveredFiles.isNotEmpty) {
+      print('\nUncovered files:');
+      uncoveredFiles.sort();
+      uncoveredFiles.forEach((file) => print('- $file'));
+    }
   }
   validateResult(coverageExtractionResult, args);
 }
@@ -85,17 +87,17 @@ ArgParser defineArgsParser() {
     help:
         'Directory containing the package to be tested, if not informed will use current directory',
   );
-  argsParser.addOption(
+  argsParser.addMultiOption(
     'include',
     abbr: 'i',
     help:
-        'Regex of files to be included to the coverage. If informed, only files in a path that matches this regex will be reported',
+        'Regex of files to be included to the coverage. If informed, only files in a path that matches any of these regex will be reported',
   );
-  argsParser.addOption(
+  argsParser.addMultiOption(
     'exclude',
     abbr: 'e',
     help:
-        'Regex of files to be excluded from the coverage. If informed, files that don\'t match this regex won\'t be reported',
+        'Regex of files to be excluded from the coverage. If informed, files that don\'t match any of these regex won\'t be reported',
   );
   argsParser.addOption(
     'minimum',
@@ -152,8 +154,8 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     showUncovered: showUncovered,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
-    includeRegex: include,
-    excludeRegex: exclude,
+    includeRegexes: include,
+    excludeRegexes: exclude,
   );
 }
 
@@ -172,8 +174,8 @@ String? validateArgs(ApplicationArgs args) {
 
 class ApplicationArgs {
   final Directory packageDirectory;
-  final String? includeRegex;
-  final String? excludeRegex;
+  final List<String>? includeRegexes;
+  final List<String>? excludeRegexes;
   final int minimumCoverage;
   final bool showOutput;
   final bool showUncovered;
@@ -185,7 +187,7 @@ class ApplicationArgs {
     required this.showOutput,
     required this.showUncovered,
     required this.help,
-    this.includeRegex,
-    this.excludeRegex,
+    this.includeRegexes,
+    this.excludeRegexes,
   });
 }
