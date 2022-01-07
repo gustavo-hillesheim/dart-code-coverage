@@ -27,6 +27,7 @@ void main(List<String> arguments) async {
     showTestOutput: args.showOutput,
     includeRegexes: args.includeRegexes,
     excludeRegexes: args.excludeRegexes,
+    ignoreBarrelFiles: args.ignoreBarrelFiles,
   )
       .onError((dynamic error, _) {
     print(kRedPen('Error while extracting coverage: ${error?.message}'));
@@ -107,6 +108,12 @@ ArgParser defineArgsParser() {
     defaultsTo: '0',
   );
   argsParser.addFlag(
+    'ignoreBarrelFiles',
+    help: 'Ignores barrel files when creating the code coverage report',
+    negatable: false,
+    defaultsTo: false,
+  );
+  argsParser.addFlag(
     'showOutput',
     abbr: 'o',
     help: 'Show tests output',
@@ -140,6 +147,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final showOutput = argsResult['showOutput'];
   final showUncovered = argsResult['showUncovered'];
   final help = argsResult['help'];
+  final ignoreBarrelFiles = argsResult['ignoreBarrelFiles'];
 
   try {
     int.parse(minimumCoverage);
@@ -152,6 +160,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     packageDirectory: packageDirectory,
     showOutput: showOutput,
     showUncovered: showUncovered,
+    ignoreBarrelFiles: ignoreBarrelFiles,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
     includeRegexes: include,
@@ -180,12 +189,14 @@ class ApplicationArgs {
   final bool showOutput;
   final bool showUncovered;
   final bool help;
+  final bool ignoreBarrelFiles;
 
   ApplicationArgs({
     required this.packageDirectory,
     required this.minimumCoverage,
     required this.showOutput,
     required this.showUncovered,
+    required this.ignoreBarrelFiles,
     required this.help,
     this.includeRegexes,
     this.excludeRegexes,

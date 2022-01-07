@@ -15,6 +15,7 @@ class CoverageReportFactory {
     required String package,
     List<String>? includeRegexes,
     List<String>? excludeRegexes,
+    bool? ignoreBarrelFiles,
   }) {
     var coveredFiles = _extractFilesReportDetails(hitmap);
     var packageFiles = _findPackageFilesNames(
@@ -31,6 +32,10 @@ class CoverageReportFactory {
       return exclude.any((regExp) => regExp.hasMatch(path)) &&
           !include.any((regExp) => regExp.hasMatch(path));
     });
+    if (ignoreBarrelFiles ?? false) {
+      coveredFiles.removeWhere((path, _) => _isBarrelFile(path));
+      packageFiles.removeWhere((path) => _isBarrelFile(path));
+    }
     return CoverageReport(
       coveredFiles: coveredFiles,
       packageFiles: packageFiles,
@@ -69,5 +74,11 @@ class CoverageReportFactory {
       final relativeFilePath = filePath.replaceFirst(libDirPrefix, '');
       return relativeFilePath;
     }).toList();
+  }
+
+  bool _isBarrelFile(String filePath) {
+    final fileName = path.basenameWithoutExtension(filePath);
+    final fileDir = path.dirname(filePath).split(path.separator).last;
+    return fileDir == fileName;
   }
 }

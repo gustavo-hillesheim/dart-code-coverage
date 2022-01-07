@@ -40,6 +40,7 @@ class CodeCoverageExtractor {
     required bool showTestOutput,
     List<String>? includeRegexes,
     List<String>? excludeRegexes,
+    bool? ignoreBarrelFiles,
   }) async {
     if (!hasTestDirectory(packageDirectory)) {
       throw Exception(
@@ -58,8 +59,14 @@ class CodeCoverageExtractor {
       packageData,
       coverageOutputDirectory: coverageOutputDirectory,
       showTestOutput: showTestOutput,
+    );
+    final coverageReport = coverageReportFactory.create(
+      hitmap: testResult.hitmap,
+      package: packageData.name,
+      packageDirectory: packageData.directory,
       includeRegexes: includeRegexes,
       excludeRegexes: excludeRegexes,
+      ignoreBarrelFiles: ignoreBarrelFiles,
     );
 
     if (coverageOutputDirectory.existsSync()) {
@@ -69,7 +76,7 @@ class CodeCoverageExtractor {
       testResultStatus: testResult.exitCode == 1
           ? TestResultStatus.ERROR
           : TestResultStatus.SUCCESS,
-      coverageReport: testResult.coverageReport,
+      coverageReport: coverageReport,
     );
   }
 
@@ -88,9 +95,9 @@ class CodeCoverageExtractor {
 
   TestRunner _createTestRunner(PackageData packageData) {
     if (packageData.isFlutterProject) {
-      return FlutterTestRunner(processRunner, coverageReportFactory);
+      return FlutterTestRunner(processRunner);
     } else {
-      return DartTestRunner(processRunner, coverageReportFactory, hitmapReader);
+      return DartTestRunner(processRunner, hitmapReader);
     }
   }
 
@@ -105,19 +112,15 @@ abstract class TestRunner {
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
-    List<String>? includeRegexes,
-    List<String>? excludeRegexes,
   });
 }
 
 class DartTestRunner extends TestRunner {
   final ProcessRunner processRunner;
-  final CoverageReportFactory coverageReportFactory;
   final HitmapReader hitmapReader;
 
   DartTestRunner(
     this.processRunner,
-    this.coverageReportFactory,
     this.hitmapReader,
   );
 
@@ -126,8 +129,6 @@ class DartTestRunner extends TestRunner {
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
-    List<String>? includeRegexes,
-    List<String>? excludeRegexes,
   }) async {
     final exitCode = await processRunner.run(
       'dart',
@@ -141,14 +142,7 @@ class DartTestRunner extends TestRunner {
       package: packageData.name,
     );
 
-    final coverageReport = coverageReportFactory.create(
-      hitmap: hitmap,
-      package: packageData.name,
-      packageDirectory: packageData.directory,
-      includeRegexes: includeRegexes,
-      excludeRegexes: excludeRegexes,
-    );
-    return TestResult(coverageReport: coverageReport, exitCode: exitCode);
+    return TestResult(hitmap: hitmap, exitCode: exitCode);
   }
 
   Map<String, Map<int, int>> _filterAndSimpliflyFileNames(
@@ -167,20 +161,14 @@ class DartTestRunner extends TestRunner {
 
 class FlutterTestRunner extends TestRunner {
   final ProcessRunner processRunner;
-  final CoverageReportFactory coverageReportFactory;
 
-  FlutterTestRunner(
-    this.processRunner,
-    this.coverageReportFactory,
-  );
+  FlutterTestRunner(this.processRunner);
 
   @override
   Future<TestResult> runTests(
     PackageData packageData, {
     required Directory coverageOutputDirectory,
     required bool showTestOutput,
-    List<String>? includeRegexes,
-    List<String>? excludeRegexes,
   }) async {
     final coverageOutputFilePath =
         '${coverageOutputDirectory.absolute.path}${path.separator}lcov.info';
@@ -193,14 +181,7 @@ class FlutterTestRunner extends TestRunner {
 
     final hitmap = _parseTestCoverage(coverageOutputFilePath);
 
-    final coverageReport = coverageReportFactory.create(
-      hitmap: hitmap,
-      package: packageData.name,
-      packageDirectory: packageData.directory,
-      includeRegexes: includeRegexes,
-      excludeRegexes: excludeRegexes,
-    );
-    return TestResult(coverageReport: coverageReport, exitCode: exitCode);
+    return TestResult(hitmap: hitmap, exitCode: exitCode);
   }
 
   Map<String, Map<int, int>> _parseTestCoverage(String filePath) {
@@ -239,9 +220,9 @@ class FlutterTestRunner extends TestRunner {
 
 class TestResult {
   final int exitCode;
-  final CoverageReport coverageReport;
+  final Map<String, Map<int, int>> hitmap;
 
-  TestResult({required this.exitCode, required this.coverageReport});
+  TestResult({required this.exitCode, required this.hitmap});
 }
 
 class CoverageExtractionResult {
