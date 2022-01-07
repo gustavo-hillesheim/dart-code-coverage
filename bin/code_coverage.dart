@@ -35,7 +35,7 @@ void main(List<String> arguments) async {
   });
   final coverageReport = coverageExtractionResult.coverageReport;
 
-  printCoverageReport(coverageReport);
+  printCoverageReport(args, coverageReport);
   if (args.showUncovered) {
     final uncoveredFiles = coverageReport.getUncoveredFiles();
     if (uncoveredFiles.isNotEmpty) {
@@ -47,8 +47,8 @@ void main(List<String> arguments) async {
   validateResult(coverageExtractionResult, args);
 }
 
-void printCoverageReport(CoverageReport coverageReport) {
-  print(TableFormatter().format(coverageReport));
+void printCoverageReport(ApplicationArgs args, CoverageReport coverageReport) {
+  print(TableFormatter().format(coverageReport, inlineFiles: args.inlineFiles));
 
   final fileCoveragePercent = coverageReport.calculateFileCoveragePercent();
   final totalCoveredFiles = coverageReport.coveredFiles.length;
@@ -114,6 +114,13 @@ ArgParser defineArgsParser() {
     defaultsTo: false,
   );
   argsParser.addFlag(
+    'inlineFiles',
+    help:
+        'Prints file path in a single line without separating files by folder',
+    negatable: false,
+    defaultsTo: false,
+  );
+  argsParser.addFlag(
     'showOutput',
     abbr: 'o',
     help: 'Show tests output',
@@ -148,6 +155,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final showUncovered = argsResult['showUncovered'];
   final help = argsResult['help'];
   final ignoreBarrelFiles = argsResult['ignoreBarrelFiles'];
+  final inlineFiles = argsResult['inlineFiles'];
 
   try {
     int.parse(minimumCoverage);
@@ -161,6 +169,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     showOutput: showOutput,
     showUncovered: showUncovered,
     ignoreBarrelFiles: ignoreBarrelFiles,
+    inlineFiles: inlineFiles,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
     includeRegexes: include,
@@ -190,6 +199,7 @@ class ApplicationArgs {
   final bool showUncovered;
   final bool help;
   final bool ignoreBarrelFiles;
+  final bool inlineFiles;
 
   ApplicationArgs({
     required this.packageDirectory,
@@ -197,6 +207,7 @@ class ApplicationArgs {
     required this.showOutput,
     required this.showUncovered,
     required this.ignoreBarrelFiles,
+    required this.inlineFiles,
     required this.help,
     this.includeRegexes,
     this.excludeRegexes,
