@@ -116,7 +116,7 @@ ArgParser defineArgsParser() {
   argsParser.addFlag(
     'inlineFiles',
     help:
-        'Prints file path in a single line without separating files by folder',
+        'Prints file paths in a single line without separating files by folder',
     negatable: false,
     defaultsTo: false,
   );
