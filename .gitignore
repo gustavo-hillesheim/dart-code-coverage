@@ -7,3 +7,8 @@ build/
 
 # Directory created by dartdoc
 doc/api/
+
+.fvm/
+.fvmrc
+.vscode
+.DS_STORE
