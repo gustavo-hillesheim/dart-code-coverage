@@ -9,7 +9,6 @@ import 'utils.dart';
 class TableFormatter {
   String format(
     CoverageReport report, {
-    bool compact = true,
     bool inlineFiles = false,
     required int maxWidth,
   }) {
