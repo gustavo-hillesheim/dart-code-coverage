@@ -17,13 +17,12 @@ class TableFormatter {
     final formatter =
         inlineFiles ? _InlineReportFormatter() : _TreeReportFormatter();
 
-    final tableContent = <TableLine>[];
+    final tableContent = formatter.formatLines(report);
     tableContent.add((
       fileName: 'All covered files',
       coveragePercent: report.calculateLineCoveragePercent(),
       uncoveredLines: '',
     ));
-    tableContent.addAll(formatter.formatLines(report));
 
     final columnWidths = _calculateColumnWidths(
       maxWidth: maxWidth,
