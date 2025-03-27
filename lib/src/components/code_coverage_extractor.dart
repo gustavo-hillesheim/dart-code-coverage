@@ -81,9 +81,8 @@ class CodeCoverageExtractor {
   }
 
   bool hasTestDirectory(Directory packageDirectory) {
-    return Directory(
-            path.relative('test', from: packageDirectory.absolute.path))
-        .existsSync();
+    final testDirectoryPath = path.join(packageDirectory.absolute.path, 'test');
+    return Directory(testDirectoryPath).existsSync();
   }
 
   Directory _getCoverageOutputDir(Directory directory) {

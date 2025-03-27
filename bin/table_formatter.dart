@@ -1,10 +1,16 @@
+import 'dart:math';
+
 import 'package:code_coverage/code_coverage.dart';
-import 'package:code_coverage/src/models/coverage_report.dart';
 import 'package:ansicolor/ansicolor.dart';
 import 'package:path/path.dart' as path;
+import 'package:cli_table/cli_table.dart';
 
-import 'table_builder.dart';
 import 'utils.dart';
+
+const fileHeader = 'File';
+const coverageHeader = 'Coverage %';
+const uncoveredLinesHeader = 'Uncovered Lines';
+const allCoveredFilesText = 'All covered files';
 
 class TableFormatter {
   String format(
@@ -12,44 +18,105 @@ class TableFormatter {
     bool colored = true,
     bool compact = true,
     bool inlineFiles = false,
+    required int maxWidth,
   }) {
-    final tableBuilder =
-        TableBuilder().setHeaders(['File', 'Coverage %', 'Uncovered Lines']);
+    final table = Table(
+      header: [fileHeader, coverageHeader, uncoveredLinesHeader],
+      columnWidths: _calculateColumnWidths(report, maxWidth, inlineFiles),
+      columnAlignment: [
+        HorizontalAlign.left,
+        HorizontalAlign.right,
+        HorizontalAlign.left,
+      ],
+      wordWrap: true,
+    );
     _addRow(
-      tableBuilder,
-      fileName: 'All covered files',
+      table,
+      fileName: allCoveredFilesText,
       coveragePercent: report.calculateLineCoveragePercent(),
       uncoveredLines: '',
       colored: colored,
     );
 
     if (inlineFiles) {
-      _printInlineFiles(tableBuilder, report, colored);
+      _printInlineFiles(table, report, colored);
     } else {
-      _printFileTree(tableBuilder, report, colored);
+      _printFileTree(table, report, colored);
     }
 
-    return tableBuilder.build(compact: compact);
+    return table.toString();
+  }
+
+  List<int> _calculateColumnWidths(
+    CoverageReport report,
+    int maxWidth,
+    bool inlineFiles,
+  ) {
+    const columnPadding = 2;
+    const safeSpacing = 20;
+    maxWidth -= safeSpacing;
+    const coverageColumnWidth = coverageHeader.length;
+    final availableWidth = maxWidth - coverageColumnWidth;
+    final longestFileText = _calculateLongestFileText(report, inlineFiles);
+    final fileColumnWidth = min(longestFileText, availableWidth ~/ 2);
+    final longestUncoveredLinesText = _calculateLongestUncoveredLinesText(
+      report,
+    );
+    final uncoveredLinesColumnWidth = min(
+      longestUncoveredLinesText,
+      availableWidth - fileColumnWidth,
+    );
+    return [
+      max(allCoveredFilesText.length, fileColumnWidth) + columnPadding,
+      coverageColumnWidth + columnPadding,
+      max(uncoveredLinesHeader.length, uncoveredLinesColumnWidth) +
+          columnPadding,
+    ];
+  }
+
+  int _calculateLongestFileText(CoverageReport report, bool inlineFiles) {
+    if (inlineFiles) {
+      return report.coveredFiles.values
+          .map((r) => r.fileName.length)
+          .fold<int>(0, max);
+    } else {
+      return report.coveredFiles.keys.map((fileName) {
+        // print(fileName);
+        final pathSegments = fileName.split(path.separator);
+        final depthLevel = pathSegments.length - 1;
+        final baseName = path.basename(fileName);
+        final fileText = '${tab * depthLevel} $baseName';
+        // print('$fileText |');
+        return fileText.length;
+      }).fold<int>(0, max);
+    }
+  }
+
+  int _calculateLongestUncoveredLinesText(CoverageReport report) {
+    return report.coveredFiles.values
+        .map((r) => summarizeLines(r.getUncoveredLines()).length)
+        .fold<int>(0, max);
   }
 
   void _addRow(
-    TableBuilder tableBuilder, {
+    Table tableBuilder, {
     required String fileName,
     required double coveragePercent,
     required String uncoveredLines,
     required bool colored,
   }) {
     final pen = colored ? coveragePen(coveragePercent) : AnsiPen();
-    tableBuilder.addRow([
-      TableCell(fileName),
-      TableCell((coveragePercent * 100).toStringAsFixed(2),
-          alignment: CellAlignment.RIGHT),
-      TableCell(uncoveredLines),
-    ], pen: pen);
+    tableBuilder.add(
+      [
+        pen(fileName),
+        pen((coveragePercent * 100).toStringAsFixed(2)),
+        pen(uncoveredLines),
+      ],
+    );
   }
 
   void _printInlineFiles(
-    TableBuilder tableBuilder,
+    Table tableBuilder,
     CoverageReport report,
     bool colored,
   ) {
@@ -68,15 +135,15 @@ class TableFormatter {
   }
 
   void _printFileTree(
-    TableBuilder tableBuilder,
+    Table tableBuilder,
     CoverageReport report,
     bool colored,
   ) {
     void printNode(FileTreeNode node, int spacing) {
-      final tab = '  ' * spacing;
+      final leftSpacing = tab * spacing;
       _addRow(
         tableBuilder,
-        fileName: '$tab ${node.name}',
+        fileName: '$leftSpacing ${node.name}',
         coveragePercent: node.calculateLineCoveragePercent(),
         uncoveredLines: node.uncoveredLines,
         colored: colored,
@@ -121,7 +188,7 @@ class TableFormatter {
         }
       }
     }
-    return _simplifyCoverageTree(tree);
+    return tree;
   }
 
   Map<String, dynamic> _simplifyCoverageTree(
@@ -171,6 +238,8 @@ class TableFormatter {
     );
   }
 }
+
+const tab = '  ';
 
 class FileTreeNode {
   final String name;
