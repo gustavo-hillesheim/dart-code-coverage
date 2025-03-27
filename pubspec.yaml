@@ -4,7 +4,7 @@ version: 1.4.0
 repository: https://github.com/gustavo-hillesheim/dart-code-coverage
 
 environment:
-  sdk: ">=2.14.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
 
 executables:
   code_coverage:
@@ -15,7 +15,7 @@ dependencies:
   coverage: ^1.0.2
   ansicolor: ^2.0.1
   yaml: ^3.1.0
-  process_run: ^0.12.1+1
+  process_run: ^1.2.4
 
 dev_dependencies:
   test: ^1.16.8
