@@ -5,7 +5,6 @@ import 'package:code_coverage/code_coverage.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:path/path.dart' as path;
 import 'table_formatter.dart';
-import 'constants.dart';
 import 'utils.dart';
 
 void main(List<String> arguments) async {
@@ -13,7 +12,7 @@ void main(List<String> arguments) async {
   final args = extractArgs(argsParser, arguments);
   final error = validateArgs(args);
   if (error != null) {
-    print(kRedPen(error));
+    print(error);
     return;
   }
 
@@ -31,7 +30,7 @@ void main(List<String> arguments) async {
     ignoreBarrelFiles: args.ignoreBarrelFiles,
   )
       .onError((dynamic error, _) {
-    print(kRedPen('Error while extracting coverage: ${error?.message}'));
+    print('Error while extracting coverage: ${error?.message}');
     exit(1);
   });
   final coverageReport = coverageExtractionResult.coverageReport;
@@ -171,7 +170,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   try {
     int.parse(minimumCoverage);
   } catch (e) {
-    print(kRedPen('minimum option is not an integer'));
+    print('minimum option is not an integer');
     exit(1);
   }
 
