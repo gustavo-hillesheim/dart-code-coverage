@@ -93,7 +93,7 @@ void validateResult(
 ArgParser defineArgsParser() {
   final argsParser = ArgParser();
   argsParser.addOption(
-    'packageDir',
+    'package-dir',
     abbr: 'd',
     help:
         'Directory containing the package to be tested, if not informed will use current directory',
@@ -118,31 +118,31 @@ ArgParser defineArgsParser() {
     defaultsTo: '0',
   );
   argsParser.addFlag(
-    'ignoreBarrelFiles',
+    'ignore-barrel-files',
     help: 'Ignores barrel files when creating the code coverage report',
     negatable: false,
-    defaultsTo: false,
+    defaultsTo: true,
   );
   argsParser.addFlag(
-    'inlineFiles',
+    'inline-files',
     help:
         'Prints file paths in a single line without separating files by folder',
     negatable: false,
     defaultsTo: false,
   );
   argsParser.addFlag(
-    'showOutput',
+    'show-output',
     abbr: 'o',
     help: 'Show tests output',
     negatable: false,
     defaultsTo: false,
   );
   argsParser.addFlag(
-    'showUncovered',
+    'show-uncovered',
     abbr: 'u',
     help: 'Show which files were not covered',
     negatable: false,
-    defaultsTo: false,
+    defaultsTo: true,
   );
   argsParser.addFlag(
     'help',
@@ -155,17 +155,17 @@ ArgParser defineArgsParser() {
 
 ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final argsResult = argsParser.parse(arguments);
-  final packageDirectory = argsResult.wasParsed('packageDir')
-      ? Directory(argsResult['packageDir'])
+  final packageDirectory = argsResult.wasParsed('package-dir')
+      ? Directory(argsResult['package-dir'])
       : Directory.current;
   final include = argsResult['include'];
   final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
-  final showOutput = argsResult['showOutput'];
-  final showUncovered = argsResult['showUncovered'];
+  final showOutput = argsResult['show-output'];
+  final showUncovered = argsResult['show-uncovered'];
   final help = argsResult['help'];
-  final ignoreBarrelFiles = argsResult['ignoreBarrelFiles'];
-  final inlineFiles = argsResult['inlineFiles'];
+  final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
+  final inlineFiles = argsResult['inline-files'];
 
   try {
     int.parse(minimumCoverage);
