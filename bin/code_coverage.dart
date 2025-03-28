@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:code_coverage/code_coverage.dart';
+import 'package:dart_console/dart_console.dart';
 import 'package:path/path.dart' as path;
 import 'table_formatter.dart';
 import 'constants.dart';
@@ -35,7 +36,9 @@ void main(List<String> arguments) async {
   });
   final coverageReport = coverageExtractionResult.coverageReport;
 
-  printCoverageReport(args, coverageReport);
+  final console = Console();
+
+  printCoverageReport(args, coverageReport, console.windowWidth);
   if (args.showUncovered) {
     final uncoveredFiles = coverageReport.getUncoveredFiles();
     if (uncoveredFiles.isNotEmpty) {
@@ -47,8 +50,16 @@ void main(List<String> arguments) async {
   validateResult(coverageExtractionResult, args);
 }
 
-void printCoverageReport(ApplicationArgs args, CoverageReport coverageReport) {
-  print(TableFormatter().format(coverageReport, inlineFiles: args.inlineFiles));
+void printCoverageReport(
+  ApplicationArgs args,
+  CoverageReport coverageReport,
+  int maxWidth,
+) {
+  print(TableFormatter().format(
+    coverageReport,
+    inlineFiles: args.inlineFiles,
+    maxWidth: maxWidth,
+  ));
 
   final fileCoveragePercent = coverageReport.calculateFileCoveragePercent();
   final totalCoveredFiles = coverageReport.coveredFiles.length;

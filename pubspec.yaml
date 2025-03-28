@@ -16,7 +16,9 @@ dependencies:
   ansicolor: ^2.0.1
   yaml: ^3.1.0
   process_run: ^1.2.4
+  cli_table: ^1.0.2
+  dart_console: ^4.1.1
 
 dev_dependencies:
   test: ^1.16.8
-  pedantic: ^1.9.0
+  lints: ^5.1.1
