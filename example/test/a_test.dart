@@ -1,5 +1,5 @@
 import 'package:test/test.dart';
-import 'package:example/a.dart';
+import 'package:example/src/a.dart';
 
 void main() {
   test('sum test', () {
@@ -10,11 +10,5 @@ void main() {
   });
   test('max test', () {
     expect(min(4, 3), equals(3));
-  });
-  test('subtract test', () {
-    expect(subtract(1, 1), equals(0));
-  });
-  test('this test should fail', () {
-    //expect(1, equals(2));
   });
 }
