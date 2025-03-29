@@ -28,6 +28,7 @@ void main(List<String> arguments) async {
     includeRegexes: args.includeRegexes,
     excludeRegexes: args.excludeRegexes,
     ignoreBarrelFiles: args.ignoreBarrelFiles,
+    additionalTestArgs: args.additionalTestArgs,
   )
       .onError((dynamic error, _) {
     print('Error while extracting coverage: ${error?.message}');
@@ -148,6 +149,11 @@ ArgParser defineArgsParser() {
     help: 'Show application help',
     negatable: false,
   );
+  argsParser.addMultiOption(
+    'test-args',
+    abbr: 'a',
+    help: 'Additional arguments for "dart test" or "flutter test" command',
+  );
   return argsParser;
 }
 
@@ -164,6 +170,9 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final help = argsResult['help'];
   final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
   final inlineFiles = argsResult['inline-files'];
+  final additionalTestArgs = (argsResult['test-args'] as List<String>?)
+      ?.expand((a) => a.split(' '))
+      .toList();
 
   try {
     int.parse(minimumCoverage);
@@ -182,6 +191,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     help: help,
     includeRegexes: include,
     excludeRegexes: exclude,
+    additionalTestArgs: additionalTestArgs,
   );
 }
 
@@ -208,6 +218,7 @@ class ApplicationArgs {
   final bool help;
   final bool ignoreBarrelFiles;
   final bool inlineFiles;
+  final List<String>? additionalTestArgs;
 
   ApplicationArgs({
     required this.packageDirectory,
@@ -219,5 +230,6 @@ class ApplicationArgs {
     required this.help,
     this.includeRegexes,
     this.excludeRegexes,
+    this.additionalTestArgs,
   });
 }

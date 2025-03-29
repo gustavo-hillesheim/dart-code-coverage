@@ -10,5 +10,5 @@ void main() {
   });
   test('max test', () {
     expect(min(4, 3), equals(3));
-  });
+  }, tags: ['tagged-test']);
 }
