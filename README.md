@@ -40,3 +40,4 @@ These are the available options and flags for configuring the coverage report:
 - **--exclude, -e**: Specifies which files not to include in coverage output using one or multiple regexes.
 - **--ignore-barrel-files**: Ignores barrel files in coverage output.
 - **--inline-files**: Shows whole file path in output lines instead of using tree view.
+- **--test-args, -t**: Specifies additional arguments for the internal `dart test` or `flutter test` command.
