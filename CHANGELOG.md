@@ -1,3 +1,19 @@
+## 2.0.0
+
+### Features
+
+- Added `test-args` option to specify additional arguments for internal `dart test`/`flutter test` command
+
+### Changes
+
+- Changed Dart SDK constraints to `">=3.0.0 <4.0.0`
+- Changed `All covered files` output line to end of table so its easier to find it on larger projects
+- Changed command arguments from camelCase to kebab-case
+- Changed `ignore-barrel-files` option default value to `true`
+- Changed `show-uncovered` option to `hide-uncovered-files` with `false` default value. Now uncovered files are shown by default
+- Removed `show-output` option. Now test output is always shown
+- Improved table output to word-wrap when reaching maximum terminal window width
+
 ## 1.4.0
 
 ### Features
