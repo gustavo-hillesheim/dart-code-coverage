@@ -32,7 +32,6 @@ Uncovered files:
 
 These are the available options and flags for configuring the coverage report:
 
-- **--show-output, -o**: Prints `dart test` output.
 - **--showUncovered, -u**: Shows uncovered files. Defaults to true.
 - **--package-dir, -d**: Specifies the directory in which coverage will be calculated.
 - **--minimum, -m**: Specifies minimum expected coverage. If line or file coverage does not reach this value, process will exit with code 1.

@@ -24,7 +24,6 @@ void main(List<String> arguments) async {
   final coverageExtractionResult = await CodeCoverageExtractor.createDefault()
       .extract(
     packageDirectory: args.packageDirectory,
-    showTestOutput: args.showOutput,
     includeRegexes: args.includeRegexes,
     excludeRegexes: args.excludeRegexes,
     ignoreBarrelFiles: args.ignoreBarrelFiles,
@@ -132,12 +131,6 @@ ArgParser defineArgsParser() {
     defaultsTo: false,
   );
   argsParser.addFlag(
-    'show-output',
-    help: 'Show tests output',
-    negatable: false,
-    defaultsTo: false,
-  );
-  argsParser.addFlag(
     'hide-uncovered-files',
     help: 'Hides files that were not covered',
     negatable: false,
@@ -165,7 +158,6 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final include = argsResult['include'];
   final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
-  final showOutput = argsResult['show-output'];
   final hideUncovered = argsResult['hide-uncovered-files'];
   final help = argsResult['help'];
   final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
@@ -183,7 +175,6 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
 
   return ApplicationArgs(
     packageDirectory: packageDirectory,
-    showOutput: showOutput,
     hideUncovered: hideUncovered,
     ignoreBarrelFiles: ignoreBarrelFiles,
     inlineFiles: inlineFiles,
@@ -213,7 +204,6 @@ class ApplicationArgs {
   final List<String>? includeRegexes;
   final List<String>? excludeRegexes;
   final int minimumCoverage;
-  final bool showOutput;
   final bool hideUncovered;
   final bool help;
   final bool ignoreBarrelFiles;
@@ -223,7 +213,6 @@ class ApplicationArgs {
   ApplicationArgs({
     required this.packageDirectory,
     required this.minimumCoverage,
-    required this.showOutput,
     required this.hideUncovered,
     required this.ignoreBarrelFiles,
     required this.inlineFiles,

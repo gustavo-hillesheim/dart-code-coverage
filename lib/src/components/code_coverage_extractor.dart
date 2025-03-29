@@ -37,7 +37,6 @@ class CodeCoverageExtractor {
   /// If the showTestOutput flag is true, the tests outputs will be shows in the console
   Future<CoverageExtractionResult> extract({
     required Directory packageDirectory,
-    required bool showTestOutput,
     List<String>? includeRegexes,
     List<String>? excludeRegexes,
     List<String>? additionalTestArgs,
@@ -59,7 +58,6 @@ class CodeCoverageExtractor {
     final testResult = await testRunner.runTests(
       packageData,
       coverageOutputDirectory: coverageOutputDirectory,
-      showTestOutput: showTestOutput,
       additionalTestArgs: additionalTestArgs,
     );
     final coverageReport = coverageReportFactory.create(
@@ -112,7 +110,6 @@ abstract class TestRunner {
   Future<TestResult> runTests(
     PackageData packageData, {
     required Directory coverageOutputDirectory,
-    required bool showTestOutput,
     List<String>? additionalTestArgs,
   });
 }
@@ -130,7 +127,6 @@ class DartTestRunner extends TestRunner {
   Future<TestResult> runTests(
     PackageData packageData, {
     required Directory coverageOutputDirectory,
-    required bool showTestOutput,
     List<String>? additionalTestArgs,
   }) async {
     final args = [
@@ -142,7 +138,6 @@ class DartTestRunner extends TestRunner {
       'dart',
       args,
       workingDirectory: packageData.directory,
-      showOutput: showTestOutput,
     );
 
     final hitmap = _filterAndSimpliflyFileNames(
@@ -176,7 +171,6 @@ class FlutterTestRunner extends TestRunner {
   Future<TestResult> runTests(
     PackageData packageData, {
     required Directory coverageOutputDirectory,
-    required bool showTestOutput,
     List<String>? additionalTestArgs,
   }) async {
     final coverageOutputFilePath =
@@ -191,7 +185,6 @@ class FlutterTestRunner extends TestRunner {
       'flutter',
       args,
       workingDirectory: packageData.directory,
-      showOutput: showTestOutput,
     );
 
     final hitmap = _parseTestCoverage(coverageOutputFilePath);
