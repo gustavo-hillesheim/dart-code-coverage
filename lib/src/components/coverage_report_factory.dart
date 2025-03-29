@@ -25,8 +25,13 @@ class CoverageReportFactory {
     final exclude = excludeRegexes?.map((regExp) => RegExp(regExp)) ?? [];
     final include = includeRegexes?.map((regExp) => RegExp(regExp)) ?? [];
     coveredFiles.removeWhere((path, _) {
-      return exclude.any((regExp) => regExp.hasMatch(path)) &&
-          !include.any((regExp) => regExp.hasMatch(path));
+      final isIncluded = include.any((regExp) => regExp.hasMatch(path));
+      final isExcluded = exclude.any((regExp) => regExp.hasMatch(path));
+
+      if (include.isEmpty) return isExcluded;
+      if (exclude.isEmpty) return !isIncluded;
+
+      return isExcluded && !isIncluded;
     });
     packageFiles.removeWhere((path) {
       return exclude.any((regExp) => regExp.hasMatch(path)) &&
