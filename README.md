@@ -10,15 +10,22 @@ Run `code_coverage` on your package. <br>
 Output will be in this format:
 
 <pre>
-Running package tests...
-┌────────────────────┬────────────┬───────────────────┐
-│ File               │ Coverage % │ Uncovered Lines   │
-├────────────────────┼────────────┼───────────────────┤
-│ src/utils.dart     │      52.38 │ 38-42, 44, 48-51  │
-│ src/constants.dart │       0.00 │ 3-5               │
-│ All covered files  │      45.83 │                   │
-└────────────────────┴────────────┴───────────────────┘
-18.18% (2/11) of all files were covered
+Running tests for package example...
+┌───────────────────┬────────────┬─────────────────┐
+│ File              │ Coverage % │ Uncovered Lines │
+├───────────────────┼────────────┼─────────────────┤
+│  src              │      66.67 │                 │
+├───────────────────┼────────────┼─────────────────┤
+│    a.dart         │      60.00 │ 5-6, 20-21      │
+├───────────────────┼────────────┼─────────────────┤
+│    b.dart         │     100.00 │                 │
+├───────────────────┼────────────┼─────────────────┤
+│ All covered files │      66.67 │                 │
+└───────────────────┴────────────┴─────────────────┘
+66.67% (2/3) of all files were covered
+
+Uncovered files:
+- src/others/c.dart
 </pre>
 
 #### Configuration
@@ -26,7 +33,7 @@ Running package tests...
 These are the available options and flags for configuring the coverage report:
 
 - **--show-output, -o**: Prints `dart test` output.
-- **--showUncovered, -u**: Shows uncovered files.
+- **--showUncovered, -u**: Shows uncovered files. Defaults to true.
 - **--package-dir, -d**: Specifies the directory in which coverage will be calculated.
 - **--minimum, -m**: Specifies minimum expected coverage. If line or file coverage does not reach this value, process will exit with code 1.
 - **--include, -i**: Specifies which files to include in coverage output using one or multiple regexes.
