@@ -33,10 +33,10 @@ Uncovered files:
 These are the available options and flags for configuring the coverage report:
 
 - **--showUncovered, -u**: Shows uncovered files. Defaults to true.
-- **--package-dir, -d**: Specifies the directory in which coverage will be calculated.
+- **--package-dir, -d**: Specifies the directory in which coverage will be calculated. Defaults to use current directory.
 - **--minimum, -m**: Specifies minimum expected coverage. If line or file coverage does not reach this value, process will exit with code 1.
 - **--include, -i**: Specifies which files to include in coverage output using one or multiple regexes.
 - **--exclude, -e**: Specifies which files not to include in coverage output using one or multiple regexes.
-- **--ignore-barrel-files**: Ignores barrel files in coverage output.
+- **--ignore-barrel-files**: Ignores barrel files in coverage output. Defaults to true.
 - **--inline-files**: Shows whole file path in output lines instead of using tree view.
 - **--test-args, -t**: Specifies additional arguments for the internal `dart test` or `flutter test` command.
