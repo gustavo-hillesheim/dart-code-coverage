@@ -38,7 +38,7 @@ void main(List<String> arguments) async {
   final console = Console();
 
   printCoverageReport(args, coverageReport, console.windowWidth);
-  if (args.showUncovered) {
+  if (!args.hideUncovered) {
     final uncoveredFiles = coverageReport.getUncoveredFiles();
     if (uncoveredFiles.isNotEmpty) {
       print('\nUncovered files:');
@@ -132,17 +132,15 @@ ArgParser defineArgsParser() {
   );
   argsParser.addFlag(
     'show-output',
-    abbr: 'o',
     help: 'Show tests output',
     negatable: false,
     defaultsTo: false,
   );
   argsParser.addFlag(
-    'show-uncovered',
-    abbr: 'u',
-    help: 'Show which files were not covered',
+    'hide-uncovered-files',
+    help: 'Hides files that were not covered',
     negatable: false,
-    defaultsTo: true,
+    defaultsTo: false,
   );
   argsParser.addFlag(
     'help',
@@ -162,7 +160,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
   final showOutput = argsResult['show-output'];
-  final showUncovered = argsResult['show-uncovered'];
+  final hideUncovered = argsResult['hide-uncovered-files'];
   final help = argsResult['help'];
   final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
   final inlineFiles = argsResult['inline-files'];
@@ -177,7 +175,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   return ApplicationArgs(
     packageDirectory: packageDirectory,
     showOutput: showOutput,
-    showUncovered: showUncovered,
+    hideUncovered: hideUncovered,
     ignoreBarrelFiles: ignoreBarrelFiles,
     inlineFiles: inlineFiles,
     minimumCoverage: int.parse(minimumCoverage),
@@ -206,7 +204,7 @@ class ApplicationArgs {
   final List<String>? excludeRegexes;
   final int minimumCoverage;
   final bool showOutput;
-  final bool showUncovered;
+  final bool hideUncovered;
   final bool help;
   final bool ignoreBarrelFiles;
   final bool inlineFiles;
@@ -215,7 +213,7 @@ class ApplicationArgs {
     required this.packageDirectory,
     required this.minimumCoverage,
     required this.showOutput,
-    required this.showUncovered,
+    required this.hideUncovered,
     required this.ignoreBarrelFiles,
     required this.inlineFiles,
     required this.help,
