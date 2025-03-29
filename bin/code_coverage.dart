@@ -5,7 +5,6 @@ import 'package:code_coverage/code_coverage.dart';
 import 'package:dart_console/dart_console.dart';
 import 'package:path/path.dart' as path;
 import 'table_formatter.dart';
-import 'constants.dart';
 import 'utils.dart';
 
 void main(List<String> arguments) async {
@@ -13,7 +12,7 @@ void main(List<String> arguments) async {
   final args = extractArgs(argsParser, arguments);
   final error = validateArgs(args);
   if (error != null) {
-    print(kRedPen(error));
+    print(error);
     return;
   }
 
@@ -25,13 +24,13 @@ void main(List<String> arguments) async {
   final coverageExtractionResult = await CodeCoverageExtractor.createDefault()
       .extract(
     packageDirectory: args.packageDirectory,
-    showTestOutput: args.showOutput,
     includeRegexes: args.includeRegexes,
     excludeRegexes: args.excludeRegexes,
     ignoreBarrelFiles: args.ignoreBarrelFiles,
+    additionalTestArgs: args.additionalTestArgs,
   )
       .onError((dynamic error, _) {
-    print(kRedPen('Error while extracting coverage: ${error?.message}'));
+    print('Error while extracting coverage: ${error?.message}');
     exit(1);
   });
   final coverageReport = coverageExtractionResult.coverageReport;
@@ -39,7 +38,7 @@ void main(List<String> arguments) async {
   final console = Console();
 
   printCoverageReport(args, coverageReport, console.windowWidth);
-  if (args.showUncovered) {
+  if (!args.hideUncovered) {
     final uncoveredFiles = coverageReport.getUncoveredFiles();
     if (uncoveredFiles.isNotEmpty) {
       print('\nUncovered files:');
@@ -94,7 +93,7 @@ void validateResult(
 ArgParser defineArgsParser() {
   final argsParser = ArgParser();
   argsParser.addOption(
-    'packageDir',
+    'package-dir',
     abbr: 'd',
     help:
         'Directory containing the package to be tested, if not informed will use current directory',
@@ -119,29 +118,21 @@ ArgParser defineArgsParser() {
     defaultsTo: '0',
   );
   argsParser.addFlag(
-    'ignoreBarrelFiles',
+    'ignore-barrel-files',
     help: 'Ignores barrel files when creating the code coverage report',
     negatable: false,
-    defaultsTo: false,
+    defaultsTo: true,
   );
   argsParser.addFlag(
-    'inlineFiles',
+    'inline-files',
     help:
         'Prints file paths in a single line without separating files by folder',
     negatable: false,
     defaultsTo: false,
   );
   argsParser.addFlag(
-    'showOutput',
-    abbr: 'o',
-    help: 'Show tests output',
-    negatable: false,
-    defaultsTo: false,
-  );
-  argsParser.addFlag(
-    'showUncovered',
-    abbr: 'u',
-    help: 'Show which files were not covered',
+    'hide-uncovered-files',
+    help: 'Hides files that were not covered',
     negatable: false,
     defaultsTo: false,
   );
@@ -151,40 +142,47 @@ ArgParser defineArgsParser() {
     help: 'Show application help',
     negatable: false,
   );
+  argsParser.addMultiOption(
+    'test-args',
+    abbr: 'a',
+    help: 'Additional arguments for "dart test" or "flutter test" command',
+  );
   return argsParser;
 }
 
 ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final argsResult = argsParser.parse(arguments);
-  final packageDirectory = argsResult.wasParsed('packageDir')
-      ? Directory(argsResult['packageDir'])
+  final packageDirectory = argsResult.wasParsed('package-dir')
+      ? Directory(argsResult['package-dir'])
       : Directory.current;
   final include = argsResult['include'];
   final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
-  final showOutput = argsResult['showOutput'];
-  final showUncovered = argsResult['showUncovered'];
+  final hideUncovered = argsResult['hide-uncovered-files'];
   final help = argsResult['help'];
-  final ignoreBarrelFiles = argsResult['ignoreBarrelFiles'];
-  final inlineFiles = argsResult['inlineFiles'];
+  final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
+  final inlineFiles = argsResult['inline-files'];
+  final additionalTestArgs = (argsResult['test-args'] as List<String>?)
+      ?.expand((a) => a.split(' '))
+      .toList();
 
   try {
     int.parse(minimumCoverage);
   } catch (e) {
-    print(kRedPen('minimum option is not an integer'));
+    print('minimum option is not an integer');
     exit(1);
   }
 
   return ApplicationArgs(
     packageDirectory: packageDirectory,
-    showOutput: showOutput,
-    showUncovered: showUncovered,
+    hideUncovered: hideUncovered,
     ignoreBarrelFiles: ignoreBarrelFiles,
     inlineFiles: inlineFiles,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
     includeRegexes: include,
     excludeRegexes: exclude,
+    additionalTestArgs: additionalTestArgs,
   );
 }
 
@@ -206,21 +204,21 @@ class ApplicationArgs {
   final List<String>? includeRegexes;
   final List<String>? excludeRegexes;
   final int minimumCoverage;
-  final bool showOutput;
-  final bool showUncovered;
+  final bool hideUncovered;
   final bool help;
   final bool ignoreBarrelFiles;
   final bool inlineFiles;
+  final List<String>? additionalTestArgs;
 
   ApplicationArgs({
     required this.packageDirectory,
     required this.minimumCoverage,
-    required this.showOutput,
-    required this.showUncovered,
+    required this.hideUncovered,
     required this.ignoreBarrelFiles,
     required this.inlineFiles,
     required this.help,
     this.includeRegexes,
     this.excludeRegexes,
+    this.additionalTestArgs,
   });
 }

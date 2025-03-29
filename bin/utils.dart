@@ -1,5 +1,4 @@
 import 'package:ansicolor/ansicolor.dart';
-import 'constants.dart';
 
 String summarizeLines(List<int> lines) {
   var result = '';
@@ -32,6 +31,9 @@ String concatenate(String initial, String toAdd) {
 }
 
 AnsiPen coveragePen(double coveragePercent) {
+  final kRedPen = AnsiPen()..red();
+  final kYellowPen = AnsiPen()..yellow();
+  final kGreenPen = AnsiPen()..green();
   if (coveragePercent < .6) {
     return kRedPen;
   } else if (coveragePercent < .8) {
