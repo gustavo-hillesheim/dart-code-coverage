@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Removed dependency to add compatibility with older Dart SDK versions
+
 ## 2.0.0
 
 ### Features
