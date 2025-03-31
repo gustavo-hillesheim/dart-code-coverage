@@ -1,6 +1,6 @@
 name: code_coverage
 description: A CLI tool and package useful for reporting code coverage of a given dart package
-version: 2.0.0
+version: 2.0.1
 repository: https://github.com/gustavo-hillesheim/dart-code-coverage
 
 environment:
@@ -15,7 +15,6 @@ dependencies:
   coverage: ^1.0.2
   ansicolor: ^2.0.1
   yaml: ^3.1.0
-  process_run: ^1.2.4
   cli_table: ^1.0.2
   dart_console: ^4.1.1
 
