@@ -1,7 +1,5 @@
 import 'dart:io';
 
-import 'package:process_run/which.dart';
-
 /// Wrapper for the [Process.start] method that reads the stdout and stderr streams and outputs then to the console
 class ProcessRunner {
   /// Runs a given executable with the given args.
@@ -12,7 +10,7 @@ class ProcessRunner {
     Directory? workingDirectory,
   }) async {
     final process = await Process.start(
-      whichSync(executable) ?? executable,
+      executable,
       args,
       workingDirectory: workingDirectory?.absolute.path,
       mode: ProcessStartMode.inheritStdio,
