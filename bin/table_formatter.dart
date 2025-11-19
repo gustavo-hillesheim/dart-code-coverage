@@ -10,6 +10,7 @@ class TableFormatter {
   String format(
     CoverageReport report, {
     bool inlineFiles = false,
+    bool excludeFullyCovered = false,
     required int maxWidth,
   }) {
     const headers = [
@@ -52,6 +53,10 @@ class TableFormatter {
     );
     for (final line in tableContent) {
       final pen = coveragePen(line.coveragePercent);
+      final isFullyCovered = line.coveragePercent >= 1.0;
+      if (excludeFullyCovered && isFullyCovered) {
+        continue;
+      }
       table.add(
         [
           pen(line.fileName),
