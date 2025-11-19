@@ -1,3 +1,8 @@
+## 2.1.1
+
+- Added total coverage percentage and lines of code for each file
+- Added `exclude-fully-covered` option to remove fully covered files from the report
+
 ## 2.0.1
 
 - Removed dependency to add compatibility with older Dart SDK versions

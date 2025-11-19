@@ -58,6 +58,7 @@ void printCoverageReport(
     coverageReport,
     inlineFiles: args.inlineFiles,
     maxWidth: maxWidth,
+    excludeFullyCovered: args.excludeFullyCovered,
   ));
 
   final fileCoveragePercent = coverageReport.calculateFileCoveragePercent();
@@ -137,6 +138,12 @@ ArgParser defineArgsParser() {
     defaultsTo: false,
   );
   argsParser.addFlag(
+    'exclude-fully-covered',
+    help: 'Excludes fully covered files from the coverage report',
+    negatable: false,
+    defaultsTo: false,
+  );
+  argsParser.addFlag(
     'help',
     abbr: 'h',
     help: 'Show application help',
@@ -159,6 +166,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
   final hideUncovered = argsResult['hide-uncovered-files'];
+  final excludeFullyCovered = argsResult['exclude-fully-covered'];
   final help = argsResult['help'];
   final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
   final inlineFiles = argsResult['inline-files'];
@@ -177,6 +185,7 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
     packageDirectory: packageDirectory,
     hideUncovered: hideUncovered,
     ignoreBarrelFiles: ignoreBarrelFiles,
+    excludeFullyCovered: excludeFullyCovered,
     inlineFiles: inlineFiles,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
@@ -205,6 +214,7 @@ class ApplicationArgs {
   final List<String>? excludeRegexes;
   final int minimumCoverage;
   final bool hideUncovered;
+  final bool excludeFullyCovered;
   final bool help;
   final bool ignoreBarrelFiles;
   final bool inlineFiles;
@@ -214,6 +224,7 @@ class ApplicationArgs {
     required this.packageDirectory,
     required this.minimumCoverage,
     required this.hideUncovered,
+    required this.excludeFullyCovered,
     required this.ignoreBarrelFiles,
     required this.inlineFiles,
     required this.help,

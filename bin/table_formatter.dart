@@ -10,9 +10,16 @@ class TableFormatter {
   String format(
     CoverageReport report, {
     bool inlineFiles = false,
+    bool excludeFullyCovered = false,
     required int maxWidth,
   }) {
-    const headers = ['File', 'Coverage %', 'Uncovered Lines'];
+    const headers = [
+      'File',
+      'File Cov. %',
+      'Total Cov. %',
+      'LOC %',
+      'Uncovered Lines'
+    ];
     final formatter =
         inlineFiles ? _InlineReportFormatter() : _TreeReportFormatter();
 
@@ -20,6 +27,8 @@ class TableFormatter {
     tableContent.add((
       fileName: 'All covered files',
       coveragePercent: report.calculateLineCoveragePercent(),
+      percentOfTotalCoverage: report.calculateLineCoveragePercent(),
+      percentOfTotalLines: 1,
       uncoveredLines: '',
     ));
 
@@ -35,6 +44,8 @@ class TableFormatter {
       columnAlignment: [
         HorizontalAlign.left,
         HorizontalAlign.right,
+        HorizontalAlign.right,
+        HorizontalAlign.right,
         HorizontalAlign.left,
       ],
       wordWrap: true,
@@ -42,10 +53,16 @@ class TableFormatter {
     );
     for (final line in tableContent) {
       final pen = coveragePen(line.coveragePercent);
+      final isFullyCovered = line.coveragePercent >= 1.0;
+      if (excludeFullyCovered && isFullyCovered) {
+        continue;
+      }
       table.add(
         [
           pen(line.fileName),
           pen(line.formattedCoveragePercent),
+          pen(line.formattedPercentOfTotalCoverage),
+          pen(line.formattedPercentOfTotalLines),
           pen(line.uncoveredLines),
         ],
       );
@@ -96,12 +113,17 @@ class _InlineReportFormatter implements _ReportFormatter {
 
   List<TableLine> formatLines(CoverageReport report) {
     final filesNames = report.coveredFiles.keys.toList();
+    final totalLines = report.calculateTotalLines();
     filesNames.sort();
     return filesNames.map((fileName) {
       final fileReport = report.coveredFiles[fileName]!;
+      final fileLines = fileReport.totalLines;
+      final coveredLines = fileReport.calculateLinesCovered();
       return (
         fileName: fileReport.fileName,
-        coveragePercent: fileReport.calculateLineCoveragePercent(),
+        coveragePercent: coveredLines / fileLines,
+        percentOfTotalCoverage: coveredLines / totalLines,
+        percentOfTotalLines: fileLines / totalLines,
         uncoveredLines: summarizeLines(fileReport.getUncoveredLines()),
       );
     }).toList();
@@ -113,11 +135,16 @@ class _TreeReportFormatter implements _ReportFormatter {
 
   List<TableLine> formatLines(CoverageReport report) {
     final result = <TableLine>[];
+    final totalLines = report.calculateTotalLines();
     void addNodeToResult(FileTreeNode node, int spacing) {
       final leftSpacing = '  ' * spacing;
+      final fileLines = node.totalLineCount;
+      final coveredLines = node.coveredLineCount;
       result.add((
         fileName: '$leftSpacing ${node.name}',
         coveragePercent: node.calculateLineCoveragePercent(),
+        percentOfTotalCoverage: coveredLines / totalLines,
+        percentOfTotalLines: fileLines / totalLines,
         uncoveredLines: node.uncoveredLines,
       ));
       node.children.forEach((node) => addNodeToResult(node, spacing + 1));
@@ -197,12 +224,20 @@ class _TreeReportFormatter implements _ReportFormatter {
 typedef TableLine = ({
   String fileName,
   double coveragePercent,
+  double percentOfTotalCoverage,
+  double percentOfTotalLines,
   String uncoveredLines,
 });
 
 extension on TableLine {
   String get formattedCoveragePercent =>
       (coveragePercent * 100).toStringAsFixed(2);
+
+  String get formattedPercentOfTotalCoverage =>
+      (percentOfTotalCoverage * 100).toStringAsFixed(2);
+
+  String get formattedPercentOfTotalLines =>
+      (percentOfTotalLines * 100).toStringAsFixed(2);
 }
 
 class FileTreeNode {
