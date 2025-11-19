@@ -81,15 +81,25 @@ class TableFormatter {
     maxWidth -= safeSpacing;
     int fileNameColumnWidth = headers[0].length;
     int coverageColumnWidth = headers[1].length;
-    int uncoveredLinesColumnWidth = headers[2].length;
+    int totalCoverageColumnWidth = headers[2].length;
+    int locColumnWidth = headers[3].length;
+    int uncoveredLinesColumnWidth = headers[4].length;
     for (final line in tableContent) {
       fileNameColumnWidth = max(fileNameColumnWidth, line.fileName.length);
       coverageColumnWidth =
           max(coverageColumnWidth, line.formattedCoveragePercent.length);
+      totalCoverageColumnWidth = max(totalCoverageColumnWidth,
+          line.formattedPercentOfTotalCoverage.length);
+      locColumnWidth =
+          max(locColumnWidth, line.formattedPercentOfTotalLines.length);
       uncoveredLinesColumnWidth =
           max(uncoveredLinesColumnWidth, line.uncoveredLines.length);
     }
-    int availableExpandableWidth = maxWidth - coverageColumnWidth;
+    int availableExpandableWidth = maxWidth -
+        coverageColumnWidth -
+        totalCoverageColumnWidth -
+        locColumnWidth -
+        columnPadding * 4;
     final maxExpandableColumnsWidth = availableExpandableWidth ~/ 2;
     fileNameColumnWidth = min(fileNameColumnWidth, maxExpandableColumnsWidth);
     uncoveredLinesColumnWidth = min(
@@ -99,6 +109,8 @@ class TableFormatter {
     return [
       fileNameColumnWidth + columnPadding,
       coverageColumnWidth + columnPadding,
+      totalCoverageColumnWidth + columnPadding,
+      locColumnWidth + columnPadding,
       uncoveredLinesColumnWidth + columnPadding,
     ];
   }
