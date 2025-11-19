@@ -1,4 +1,4 @@
-## 2.1.1
+## 2.1.0
 
 - Added total coverage percentage and lines of code for each file
 - Added `exclude-fully-covered` option to remove fully covered files from the report
