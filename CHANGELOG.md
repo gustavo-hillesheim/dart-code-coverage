@@ -1,4 +1,8 @@
-## 2.1.0
+## 2.1.1
+
+- Fixed table column size calculations. This issue caused the table to break if content was too long.
+
+## 2.1.0 
 
 - Added total coverage percentage and lines of code for each file
 - Added `exclude-fully-covered` option to remove fully covered files from the report
