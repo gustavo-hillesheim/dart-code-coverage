@@ -37,10 +37,7 @@ class CodeCoverageExtractor {
   /// If the showTestOutput flag is true, the tests outputs will be shows in the console
   Future<CoverageExtractionResult> extract({
     required Directory packageDirectory,
-    List<String>? includeRegexes,
-    List<String>? excludeRegexes,
     List<String>? additionalTestArgs,
-    bool? ignoreBarrelFiles,
   }) async {
     if (!hasTestDirectory(packageDirectory)) {
       throw Exception(
@@ -64,9 +61,6 @@ class CodeCoverageExtractor {
       hitmap: testResult.hitmap,
       package: packageData.name,
       packageDirectory: packageData.directory,
-      includeRegexes: includeRegexes,
-      excludeRegexes: excludeRegexes,
-      ignoreBarrelFiles: ignoreBarrelFiles,
     );
 
     if (coverageOutputDirectory.existsSync()) {

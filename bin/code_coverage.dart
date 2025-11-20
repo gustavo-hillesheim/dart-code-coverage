@@ -24,9 +24,6 @@ void main(List<String> arguments) async {
   final coverageExtractionResult = await CodeCoverageExtractor.createDefault()
       .extract(
     packageDirectory: args.packageDirectory,
-    includeRegexes: args.includeRegexes,
-    excludeRegexes: args.excludeRegexes,
-    ignoreBarrelFiles: args.ignoreBarrelFiles,
     additionalTestArgs: args.additionalTestArgs,
   )
       .onError((dynamic error, _) {
@@ -99,30 +96,12 @@ ArgParser defineArgsParser() {
     help:
         'Directory containing the package to be tested, if not informed will use current directory',
   );
-  argsParser.addMultiOption(
-    'include',
-    abbr: 'i',
-    help:
-        'Regex of files to be included to the coverage. If informed, only files in a path that matches any of these regex will be reported',
-  );
-  argsParser.addMultiOption(
-    'exclude',
-    abbr: 'e',
-    help:
-        'Regex of files to be excluded from the coverage. If informed, files that don\'t match any of these regex won\'t be reported',
-  );
   argsParser.addOption(
     'minimum',
     abbr: 'm',
     help:
         'Minimum coverage percentage required, if not reached, will exit with code 1',
     defaultsTo: '0',
-  );
-  argsParser.addFlag(
-    'ignore-barrel-files',
-    help: 'Ignores barrel files when creating the code coverage report',
-    negatable: false,
-    defaultsTo: true,
   );
   argsParser.addFlag(
     'inline-files',
@@ -162,13 +141,10 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   final packageDirectory = argsResult.wasParsed('package-dir')
       ? Directory(argsResult['package-dir'])
       : Directory.current;
-  final include = argsResult['include'];
-  final exclude = argsResult['exclude'];
   final minimumCoverage = argsResult['minimum'];
   final hideUncovered = argsResult['hide-uncovered-files'];
   final excludeFullyCovered = argsResult['exclude-fully-covered'];
   final help = argsResult['help'];
-  final ignoreBarrelFiles = argsResult['ignore-barrel-files'];
   final inlineFiles = argsResult['inline-files'];
   final additionalTestArgs = (argsResult['test-args'] as List<String>?)
       ?.expand((a) => a.split(' '))
@@ -184,13 +160,10 @@ ApplicationArgs extractArgs(ArgParser argsParser, List<String> arguments) {
   return ApplicationArgs(
     packageDirectory: packageDirectory,
     hideUncovered: hideUncovered,
-    ignoreBarrelFiles: ignoreBarrelFiles,
     excludeFullyCovered: excludeFullyCovered,
     inlineFiles: inlineFiles,
     minimumCoverage: int.parse(minimumCoverage),
     help: help,
-    includeRegexes: include,
-    excludeRegexes: exclude,
     additionalTestArgs: additionalTestArgs,
   );
 }
@@ -210,13 +183,10 @@ String? validateArgs(ApplicationArgs args) {
 
 class ApplicationArgs {
   final Directory packageDirectory;
-  final List<String>? includeRegexes;
-  final List<String>? excludeRegexes;
   final int minimumCoverage;
   final bool hideUncovered;
   final bool excludeFullyCovered;
   final bool help;
-  final bool ignoreBarrelFiles;
   final bool inlineFiles;
   final List<String>? additionalTestArgs;
 
@@ -225,11 +195,8 @@ class ApplicationArgs {
     required this.minimumCoverage,
     required this.hideUncovered,
     required this.excludeFullyCovered,
-    required this.ignoreBarrelFiles,
     required this.inlineFiles,
     required this.help,
-    this.includeRegexes,
-    this.excludeRegexes,
     this.additionalTestArgs,
   });
 }
