@@ -13,34 +13,12 @@ class CoverageReportFactory {
     required Map<String, Map<int, int>> hitmap,
     required Directory packageDirectory,
     required String package,
-    List<String>? includeRegexes,
-    List<String>? excludeRegexes,
-    bool? ignoreBarrelFiles,
   }) {
     var coveredFiles = _extractFilesReportDetails(hitmap);
     var packageFiles = _findPackageFilesNames(
       packageDirectory: packageDirectory,
       package: package,
     );
-    final exclude = excludeRegexes?.map((regExp) => RegExp(regExp)) ?? [];
-    final include = includeRegexes?.map((regExp) => RegExp(regExp)) ?? [];
-    coveredFiles.removeWhere((path, _) {
-      final isIncluded = include.any((regExp) => regExp.hasMatch(path));
-      final isExcluded = exclude.any((regExp) => regExp.hasMatch(path));
-
-      if (include.isEmpty) return isExcluded;
-      if (exclude.isEmpty) return !isIncluded;
-
-      return isExcluded && !isIncluded;
-    });
-    packageFiles.removeWhere((path) {
-      return exclude.any((regExp) => regExp.hasMatch(path)) &&
-          !include.any((regExp) => regExp.hasMatch(path));
-    });
-    if (ignoreBarrelFiles ?? false) {
-      coveredFiles.removeWhere((path, _) => _isBarrelFile(path));
-      packageFiles.removeWhere((path) => _isBarrelFile(path));
-    }
     return CoverageReport(
       coveredFiles: coveredFiles,
       packageFiles: packageFiles,
@@ -79,11 +57,5 @@ class CoverageReportFactory {
       final relativeFilePath = filePath.replaceFirst(libDirPrefix, '');
       return relativeFilePath;
     }).toList();
-  }
-
-  bool _isBarrelFile(String filePath) {
-    final fileName = path.basenameWithoutExtension(filePath);
-    final fileDir = path.dirname(filePath).split(path.separator).last;
-    return fileDir == fileName;
   }
 }
